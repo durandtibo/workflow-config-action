@@ -20,16 +20,16 @@ outputs:
     description: "The full config file content as compact JSON"
     value: ${{ steps.load.outputs.config }}
   python_versions:
-    description: "JSON array of Python versions"
+    description: "JSON array of Python versions (empty array if the key is absent from the config)"
     value: ${{ steps.load.outputs.python_versions }}
   os_unix:
-    description: "JSON array of all Unix-based OS runner labels (derived: os_ubuntu + os_macos)"
+    description: "JSON array of all Unix-based OS runner labels (derived: os_ubuntu + os_macos; empty array if both are absent)"
     value: ${{ steps.load.outputs.os_unix }}
   os_ubuntu:
-    description: "JSON array of Ubuntu OS runner labels"
+    description: "JSON array of Ubuntu OS runner labels (empty array if the key is absent from the config)"
     value: ${{ steps.load.outputs.os_ubuntu }}
   os_macos:
-    description: "JSON array of macOS runner labels"
+    description: "JSON array of macOS runner labels (empty array if the key is absent from the config)"
     value: ${{ steps.load.outputs.os_macos }}
   value:
     description: "Value of the key given via the 'key' input, as compact JSON"

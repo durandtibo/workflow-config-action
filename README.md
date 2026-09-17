@@ -59,16 +59,19 @@ built-in `configs/versions.json`.
 
 Every array output is sorted alphabetically by the action, regardless of the
 order the items are listed in the config file — so output order stays
-consistent even if the config is overridden or edited out of order.
+consistent even if the config is overridden or edited out of order. If
+`python_versions`, `os_ubuntu`, or `os_macos` is absent from the config file,
+the corresponding output (and `os_unix`, if both of its inputs are absent)
+defaults to an empty array (`[]`) rather than erroring.
 
 | Name              | Description                                  |
 |-------------------|-----------------------------------------------|
 | `config`          | Full config file content as compact JSON (not sorted) |
-| `python_versions` | JSON array of Python versions, sorted        |
-| `os_unix`         | JSON array of all Unix-based OS runner labels, sorted (derived: `os_ubuntu` + `os_macos`) |
-| `os_ubuntu`       | JSON array of Ubuntu OS runner labels, sorted |
-| `os_macos`        | JSON array of macOS runner labels, sorted    |
-| `value`           | Value of the `key` input, as compact JSON (sorted if it's an array) |
+| `python_versions` | JSON array of Python versions, sorted (`[]` if absent from the config) |
+| `os_unix`         | JSON array of all Unix-based OS runner labels, sorted (derived: `os_ubuntu` + `os_macos`; `[]` if both are absent) |
+| `os_ubuntu`       | JSON array of Ubuntu OS runner labels, sorted (`[]` if absent from the config) |
+| `os_macos`        | JSON array of macOS runner labels, sorted (`[]` if absent from the config) |
+| `value`           | Value of the `key` input, as compact JSON (sorted if it's an array); the step fails if the key is missing |
 
 ## Usage
 
