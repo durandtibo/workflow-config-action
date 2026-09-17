@@ -99,3 +99,15 @@ jobs:
 
 See [`.github/workflows/example.yml`](.github/workflows/example.yml) for a
 full working example.
+
+## Testing
+
+[`.github/workflows/test.yml`](.github/workflows/test.yml) exercises the
+action end-to-end on every push/PR: default config, the `config` override
+input (using fixtures under [`tests/fixtures`](tests/fixtures)), the `key`
+input for both scalar and array values, sorting, the `os_unix` union
+derivation, missing/absent-key config files, and unknown keys — each as a
+separate job asserting on the action's outputs with `jq`. Every job runs on
+an `[ubuntu-latest, macos-latest, windows-latest]` matrix (with
+`fail-fast: false`) to confirm the action's bash/`jq` logic behaves
+identically across all three GitHub-hosted runner OSes.
