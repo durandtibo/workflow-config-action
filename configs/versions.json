@@ -1,0 +1,29 @@
+{
+  "python_versions": [
+    "3.10",
+    "3.11",
+    "3.12",
+    "3.13",
+    "3.13t",
+    "3.14",
+    "3.14t"
+  ],
+  "os_ubuntu": [
+    "ubuntu-latest",
+    "ubuntu-slim",
+    "ubuntu-26.04",
+    "ubuntu-24.04",
+    "ubuntu-22.04",
+    "ubuntu-26.04-arm",
+    "ubuntu-24.04-arm",
+    "ubuntu-22.04-arm"
+  ],
+  "os_macos": [
+    "macos-latest",
+    "macos-26",
+    "macos-15",
+    "macos-14",
+    "macos-26-intel",
+    "macos-15-intel"
+  ]
+}

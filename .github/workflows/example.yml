@@ -1,0 +1,31 @@
+name: Example usage
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  config:
+    runs-on: ubuntu-latest
+    outputs:
+      python_versions: ${{ steps.cfg.outputs.python_versions }}
+      os_ubuntu: ${{ steps.cfg.outputs.os_ubuntu }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: cfg
+        uses: ./
+
+  test:
+    needs: config
+    strategy:
+      matrix:
+        python-version: ${{ fromJSON(needs.config.outputs.python_versions) }}
+        os: ${{ fromJSON(needs.config.outputs.os_ubuntu) }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: python --version
