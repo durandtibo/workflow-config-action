@@ -2,5 +2,6 @@
   "python_versions": ["3.12", "3.10", "3.11"],
   "os_ubuntu": ["ubuntu-22.04", "ubuntu-latest"],
   "os_macos": ["macos-14", "macos-latest"],
+  "os_windows": ["windows-2022", "windows-latest"],
   "label": "custom"
 }

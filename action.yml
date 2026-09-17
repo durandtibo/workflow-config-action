@@ -31,6 +31,12 @@ outputs:
   os_macos:
     description: "JSON array of macOS runner labels (empty array if the key is absent from the config)"
     value: ${{ steps.load.outputs.os_macos }}
+  os_windows:
+    description: "JSON array of Windows runner labels (empty array if the key is absent from the config)"
+    value: ${{ steps.load.outputs.os_windows }}
+  os_all:
+    description: "JSON array of all OS runner labels (derived: os_ubuntu + os_macos + os_windows; empty array if all are absent)"
+    value: ${{ steps.load.outputs.os_all }}
   value:
     description: "Value of the key given via the 'key' input, as compact JSON"
     value: ${{ steps.load.outputs.value }}
@@ -69,7 +75,9 @@ runs:
         emit_sorted "python_versions" ".python_versions // []"
         emit_sorted "os_ubuntu" ".os_ubuntu // []"
         emit_sorted "os_macos" ".os_macos // []"
+        emit_sorted "os_windows" ".os_windows // []"
         emit_sorted "os_unix" "(.os_ubuntu // []) + (.os_macos // [])"
+        emit_sorted "os_all" "(.os_ubuntu // []) + (.os_macos // []) + (.os_windows // [])"
 
         if [[ -n "$key" ]]; then
           value=$(jq -c --arg k "$key" '.[$k]' "$config_path")
