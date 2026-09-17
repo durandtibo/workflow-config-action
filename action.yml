@@ -1,0 +1,84 @@
+name: "Workflow Config"
+description: "Expose reusable workflow configuration (Python versions, OS matrix, etc.) as job outputs"
+author: "Thibaut Durand"
+
+inputs:
+  config:
+    description: >
+      Path to a JSON config file to override the built-in defaults, relative
+      to the calling repository's workspace (e.g. ".github/workflow-config.json").
+      Leave empty to use this action's own configs/versions.json.
+    required: false
+    default: ""
+  key:
+    description: "Optional single key to extract from the config as the generic 'value' output"
+    required: false
+    default: ""
+
+outputs:
+  config:
+    description: "The full config file content as compact JSON"
+    value: ${{ steps.load.outputs.config }}
+  python_versions:
+    description: "JSON array of Python versions"
+    value: ${{ steps.load.outputs.python_versions }}
+  os_unix:
+    description: "JSON array of all Unix-based OS runner labels (derived: os_ubuntu + os_macos)"
+    value: ${{ steps.load.outputs.os_unix }}
+  os_ubuntu:
+    description: "JSON array of Ubuntu OS runner labels"
+    value: ${{ steps.load.outputs.os_ubuntu }}
+  os_macos:
+    description: "JSON array of macOS runner labels"
+    value: ${{ steps.load.outputs.os_macos }}
+  value:
+    description: "Value of the key given via the 'key' input, as compact JSON"
+    value: ${{ steps.load.outputs.value }}
+
+runs:
+  using: "composite"
+  steps:
+    - id: load
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        config_path="${{ inputs.config }}"
+        key="${{ inputs.key }}"
+
+        if [[ -z "$config_path" ]]; then
+          config_path="${{ github.action_path }}/configs/versions.json"
+        fi
+
+        if [[ ! -f "$config_path" ]]; then
+          echo "::error::Config file not found: $config_path"
+          exit 1
+        fi
+
+        # Emits `$1=<result of jq filter $2 on the config, sorted>` to
+        # GITHUB_OUTPUT. Sorting here (rather than in the config file) keeps
+        # output order consistent even when a consumer overrides the config
+        # or a list is edited out of order.
+        emit_sorted() {
+          local name="$1"
+          local filter="$2"
+          echo "${name}=$(jq -c "(${filter}) | sort" "$config_path")" >> "$GITHUB_OUTPUT"
+        }
+
+        echo "config=$(jq -c '.' "$config_path")" >> "$GITHUB_OUTPUT"
+        emit_sorted "python_versions" ".python_versions // []"
+        emit_sorted "os_ubuntu" ".os_ubuntu // []"
+        emit_sorted "os_macos" ".os_macos // []"
+        emit_sorted "os_unix" "(.os_ubuntu // []) + (.os_macos // [])"
+
+        if [[ -n "$key" ]]; then
+          value=$(jq -c --arg k "$key" '.[$k]' "$config_path")
+          if [[ "$value" == "null" ]]; then
+            echo "::error::Key '$key' not found in $config_path"
+            exit 1
+          fi
+          if [[ "$(jq -r 'type' <<< "$value")" == "array" ]]; then
+            value=$(jq -c 'sort' <<< "$value")
+          fi
+          echo "value=$value" >> "$GITHUB_OUTPUT"
+        fi
