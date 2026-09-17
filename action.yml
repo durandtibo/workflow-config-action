@@ -19,8 +19,14 @@ outputs:
   config:
     description: "The full config file content as compact JSON"
     value: ${{ steps.load.outputs.config }}
+  python_versions_standard:
+    description: "JSON array of standard (non-threaded) Python versions (empty array if the key is absent from the config)"
+    value: ${{ steps.load.outputs.python_versions_standard }}
+  python_versions_threaded:
+    description: "JSON array of free-threaded Python versions (empty array if the key is absent from the config)"
+    value: ${{ steps.load.outputs.python_versions_threaded }}
   python_versions:
-    description: "JSON array of Python versions (empty array if the key is absent from the config)"
+    description: "JSON array of all Python versions (derived: python_versions_standard + python_versions_threaded; empty array if both are absent)"
     value: ${{ steps.load.outputs.python_versions }}
   os_unix:
     description: "JSON array of all Unix-based OS runner labels (derived: os_ubuntu + os_macos; empty array if both are absent)"
@@ -72,7 +78,9 @@ runs:
         }
 
         echo "config=$(jq -c '.' "$config_path")" >> "$GITHUB_OUTPUT"
-        emit_sorted "python_versions" ".python_versions // []"
+        emit_sorted "python_versions_standard" ".python_versions_standard // []"
+        emit_sorted "python_versions_threaded" ".python_versions_threaded // []"
+        emit_sorted "python_versions" "(.python_versions_standard // []) + (.python_versions_threaded // [])"
         emit_sorted "os_ubuntu" ".os_ubuntu // []"
         emit_sorted "os_macos" ".os_macos // []"
         emit_sorted "os_windows" ".os_windows // []"
