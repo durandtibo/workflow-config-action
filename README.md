@@ -1,11 +1,19 @@
-# workflow-config-action
+# 🛠️ workflow-config-action
 
 A composite GitHub Action that exposes reusable workflow configuration
 (Python versions, OS matrices, etc.) as job outputs, so multiple workflows
 and repos can share a single source of truth instead of duplicating
 hardcoded lists.
 
-## Config
+## ✨ Why
+
+Keeping the same Python version list or OS matrix in sync across a dozen
+workflow files (and repos) is tedious and error-prone. This action centralizes
+that config in one JSON file and exposes it as ready-to-use, sorted JSON
+arrays you can feed straight into a matrix strategy — with sane derived
+unions like "all Python versions" or "all Unix OSes" computed for you.
+
+## 📦 Config
 
 By default the action uses the config bundled in this repo,
 [`configs/versions.json`](configs/versions.json):
@@ -34,7 +42,7 @@ The official list of GitHub-hosted runners (used for the `os_*` keys) is
 available at
 [docs.github.com/en/actions/reference/runners/github-hosted-runners](https://docs.github.com/en/actions/reference/runners/github-hosted-runners).
 
-### Overriding the config in a consumer repo
+### 🔀 Overriding the config in a consumer repo
 
 Any repo using this action can override the defaults by checking out its own
 config file and passing its path via the `config` input:
@@ -43,7 +51,7 @@ config file and passing its path via the `config` input:
 steps:
   - uses: actions/checkout@v4
   - id: cfg
-    uses: your-org/workflow-config-action@v1
+    uses: durandtibo/workflow-config-action@main
     with:
       config: .github/workflow-config.json
 ```
@@ -53,14 +61,14 @@ must exist in the consumer's own checkout (it does not need to check out
 this action's repo). Leave `config` empty (the default) to use this action's
 built-in `configs/versions.json`.
 
-## Inputs
+## ⚙️ Inputs
 
 | Name     | Description                                                                  | Default                          |
 |----------|-------------------------------------------------------------------------------|------------------------------------|
 | `config` | Path to a JSON config file to override the defaults, relative to the calling repo's workspace | *(empty — uses built-in config)* |
 | `key`    | Optional key to extract as the generic `value` output                        | *(none)*                          |
 
-## Outputs
+## 📤 Outputs
 
 Every array output is sorted alphabetically by the action, regardless of the
 order the items are listed in the config file — so output order stays
@@ -84,7 +92,7 @@ erroring.
 | `os_windows`                | JSON array of Windows runner labels, sorted (`[]` if absent from the config) |
 | `value`                     | Value of the `key` input, as compact JSON (sorted if it's an array); the step fails if the key is missing |
 
-## Usage
+## 🚀 Usage
 
 ```yaml
 jobs:
@@ -96,7 +104,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - id: cfg
-        uses: your-org/workflow-config-action@v1
+        uses: durandtibo/workflow-config-action@main
 
   test:
     needs: config
@@ -114,7 +122,7 @@ jobs:
 See [`.github/workflows/example.yml`](.github/workflows/example.yml) for a
 full working example.
 
-## Testing
+## ✅ Testing
 
 [`.github/workflows/ci.yaml`](.github/workflows/ci.yaml) runs on every
 push/PR and calls two reusable workflows:
@@ -133,9 +141,12 @@ input for both scalar and array values, sorting, the
 inputs are present and when only some are, e.g. `python_versions_threaded`
 or `os_windows` absent), missing/absent-key config files, and unknown
 keys — each as a separate job asserting on the action's outputs with `jq`.
-Every job runs on
-an `[ubuntu-latest, macos-latest, windows-latest]` matrix (with
-`fail-fast: false`) to confirm the action's bash/`jq` logic behaves
+Every job runs on an `[ubuntu-latest, macos-latest, windows-latest]` matrix
+(with `fail-fast: false`) to confirm the action's bash/`jq` logic behaves
 identically across all three GitHub-hosted runner OSes.
 
 Both workflows can also be triggered manually (`workflow_dispatch`).
+
+## 📄 License
+
+See [LICENSE](LICENSE).
