@@ -2,6 +2,10 @@ name: "Workflow Config"
 description: "Expose reusable workflow configuration (Python versions, OS matrix, etc.) as job outputs"
 author: "Thibaut Durand"
 
+branding:
+  icon: "sliders"
+  color: "blue"
+
 inputs:
   config:
     description: >
