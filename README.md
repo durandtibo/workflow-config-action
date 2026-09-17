@@ -10,7 +10,7 @@ hardcoded lists.
 Keeping the same Python version list or OS matrix in sync across a dozen
 workflow files (and repos) is tedious and error-prone. This action centralizes
 that config in one JSON file and exposes it as ready-to-use, sorted JSON
-arrays you can feed straight into a matrix strategy — with sane derived
+arrays you can feed straight into a matrix strategy, with sane derived
 unions like "all Python versions" or "all Unix OSes" computed for you.
 
 ## 📦 Config
@@ -31,7 +31,7 @@ By default the action uses the config bundled in this repo,
 Add new keys there as needed, and expose them in [`action.yml`](action.yml)
 outputs the same way `python_versions_standard` and `os_ubuntu` are.
 
-`os_unix` is not stored in the config file — it's derived in `action.yml`
+`os_unix` is not stored in the config file. It's derived in `action.yml`
 by concatenating `os_ubuntu` and `os_macos`, so the two lists never drift
 out of sync with their union. `os_all` is derived the same way, adding
 `os_windows` to the mix. `python_versions` is derived the same way too, by
@@ -65,13 +65,13 @@ built-in `configs/versions.json`.
 
 | Name     | Description                                                                  | Default                          |
 |----------|-------------------------------------------------------------------------------|------------------------------------|
-| `config` | Path to a JSON config file to override the defaults, relative to the calling repo's workspace | *(empty — uses built-in config)* |
+| `config` | Path to a JSON config file to override the defaults, relative to the calling repo's workspace | *(empty, uses built-in config)* |
 | `key`    | Optional key to extract as the generic `value` output                        | *(none)*                          |
 
 ## 📤 Outputs
 
 Every array output is sorted alphabetically by the action, regardless of the
-order the items are listed in the config file — so output order stays
+order the items are listed in the config file, so output order stays
 consistent even if the config is overridden or edited out of order. If
 `python_versions_standard`, `python_versions_threaded`, `os_ubuntu`,
 `os_macos`, or `os_windows` is absent from the config file, the
@@ -127,10 +127,10 @@ full working example.
 [`.github/workflows/ci.yaml`](.github/workflows/ci.yaml) runs on every
 push/PR and calls two reusable workflows:
 
-- [`test-local.yaml`](.github/workflows/test-local.yaml) — exercises the
+- [`test-local.yaml`](.github/workflows/test-local.yaml): exercises the
   action using the **current repository code** (`uses: ./`), so changes are
   validated before they're released.
-- [`test-stable.yaml`](.github/workflows/test-stable.yaml) — exercises the
+- [`test-stable.yaml`](.github/workflows/test-stable.yaml): exercises the
   **published** action (`uses: durandtibo/workflow-config-action@main`), to
   catch regressions in what consumers actually pick up.
 
@@ -140,7 +140,7 @@ input for both scalar and array values, sorting, the
 `python_versions`/`os_unix`/`os_all` union derivations (both when all their
 inputs are present and when only some are, e.g. `python_versions_threaded`
 or `os_windows` absent), missing/absent-key config files, and unknown
-keys — each as a separate job asserting on the action's outputs with `jq`.
+keys, each as a separate job asserting on the action's outputs with `jq`.
 Every job runs on an `[ubuntu-latest, macos-latest, windows-latest]` matrix
 (with `fail-fast: false`) to confirm the action's bash/`jq` logic behaves
 identically across all three GitHub-hosted runner OSes.
