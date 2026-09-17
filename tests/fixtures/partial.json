@@ -1,0 +1,5 @@
+{
+  "python_versions_standard": ["3.12", "3.11"],
+  "os_ubuntu": ["ubuntu-22.04", "ubuntu-latest"],
+  "os_macos": ["macos-latest", "macos-14"]
+}
