@@ -24,20 +24,26 @@ jobs:
           expected_python="$(jq -c '.python_versions | sort' configs/versions.json)"
           expected_ubuntu="$(jq -c '.os_ubuntu | sort' configs/versions.json)"
           expected_macos="$(jq -c '.os_macos | sort' configs/versions.json)"
+          expected_windows="$(jq -c '.os_windows | sort' configs/versions.json)"
           expected_unix="$(jq -c '(.os_ubuntu + .os_macos) | sort' configs/versions.json)"
+          expected_all="$(jq -c '(.os_ubuntu + .os_macos + .os_windows) | sort' configs/versions.json)"
 
           test '${{ steps.cfg.outputs.config }}' = "$expected_config"
           test '${{ steps.cfg.outputs.python_versions }}' = "$expected_python"
           test '${{ steps.cfg.outputs.os_ubuntu }}' = "$expected_ubuntu"
           test '${{ steps.cfg.outputs.os_macos }}' = "$expected_macos"
+          test '${{ steps.cfg.outputs.os_windows }}' = "$expected_windows"
           test '${{ steps.cfg.outputs.os_unix }}' = "$expected_unix"
+          test '${{ steps.cfg.outputs.os_all }}' = "$expected_all"
 
-      - name: Assert os_unix is the union of os_ubuntu and os_macos
+      - name: Assert os_unix and os_all are the unions of their parts
         shell: bash
         run: |
           set -euo pipefail
-          union="$(jq -cn --argjson a '${{ steps.cfg.outputs.os_ubuntu }}' --argjson b '${{ steps.cfg.outputs.os_macos }}' '($a + $b) | sort')"
-          test '${{ steps.cfg.outputs.os_unix }}' = "$union"
+          union_unix="$(jq -cn --argjson a '${{ steps.cfg.outputs.os_ubuntu }}' --argjson b '${{ steps.cfg.outputs.os_macos }}' '($a + $b) | sort')"
+          test '${{ steps.cfg.outputs.os_unix }}' = "$union_unix"
+          union_all="$(jq -cn --argjson a '${{ steps.cfg.outputs.os_ubuntu }}' --argjson b '${{ steps.cfg.outputs.os_macos }}' --argjson c '${{ steps.cfg.outputs.os_windows }}' '($a + $b + $c) | sort')"
+          test '${{ steps.cfg.outputs.os_all }}' = "$union_all"
 
   config-override:
     strategy:
@@ -58,7 +64,9 @@ jobs:
           test '${{ steps.cfg.outputs.python_versions }}' = '["3.10","3.11","3.12"]'
           test '${{ steps.cfg.outputs.os_ubuntu }}' = '["ubuntu-22.04","ubuntu-latest"]'
           test '${{ steps.cfg.outputs.os_macos }}' = '["macos-14","macos-latest"]'
+          test '${{ steps.cfg.outputs.os_windows }}' = '["windows-2022","windows-latest"]'
           test '${{ steps.cfg.outputs.os_unix }}' = '["macos-14","macos-latest","ubuntu-22.04","ubuntu-latest"]'
+          test '${{ steps.cfg.outputs.os_all }}' = '["macos-14","macos-latest","ubuntu-22.04","ubuntu-latest","windows-2022","windows-latest"]'
 
   key-scalar:
     strategy:
@@ -113,7 +121,9 @@ jobs:
           test '${{ steps.cfg.outputs.python_versions }}' = '[]'
           test '${{ steps.cfg.outputs.os_ubuntu }}' = '[]'
           test '${{ steps.cfg.outputs.os_macos }}' = '[]'
+          test '${{ steps.cfg.outputs.os_windows }}' = '[]'
           test '${{ steps.cfg.outputs.os_unix }}' = '[]'
+          test '${{ steps.cfg.outputs.os_all }}' = '[]'
 
   missing-config-file:
     strategy:
