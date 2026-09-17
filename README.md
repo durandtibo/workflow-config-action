@@ -110,8 +110,17 @@ full working example.
 
 ## Testing
 
-[`.github/workflows/test.yml`](.github/workflows/test.yml) exercises the
-action end-to-end on every push/PR: default config, the `config` override
+[`.github/workflows/ci.yaml`](.github/workflows/ci.yaml) runs on every
+push/PR and calls two reusable workflows:
+
+- [`test-local.yaml`](.github/workflows/test-local.yaml) — exercises the
+  action using the **current repository code** (`uses: ./`), so changes are
+  validated before they're released.
+- [`test-stable.yaml`](.github/workflows/test-stable.yaml) — exercises the
+  **published** action (`uses: durandtibo/workflow-config-action@main`), to
+  catch regressions in what consumers actually pick up.
+
+Both workflows run the same suite: default config, the `config` override
 input (using fixtures under [`tests/fixtures`](tests/fixtures)), the `key`
 input for both scalar and array values, sorting, the `os_unix`/`os_all` union
 derivations, missing/absent-key config files, and unknown keys — each as a
@@ -119,3 +128,5 @@ separate job asserting on the action's outputs with `jq`. Every job runs on
 an `[ubuntu-latest, macos-latest, windows-latest]` matrix (with
 `fail-fast: false`) to confirm the action's bash/`jq` logic behaves
 identically across all three GitHub-hosted runner OSes.
+
+Both workflows can also be triggered manually (`workflow_dispatch`).

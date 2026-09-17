@@ -1,0 +1,28 @@
+# Main Continuous Integration Pipeline
+#
+# This workflow runs on every push and pull request to the main branch.
+# It orchestrates the complete CI pipeline by calling reusable workflows.
+#
+# Jobs:
+#   - test-local: Tests the action using current repository code
+#   - test-stable: Tests the published stable action version
+#
+# Permissions:
+#   - contents: read - Required to checkout repository code
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch: # to trigger manually
+
+permissions:
+  contents: read
+
+jobs:
+  test-local:
+    uses: ./.github/workflows/test-local.yaml
+  test-stable:
+    uses: ./.github/workflows/test-stable.yaml

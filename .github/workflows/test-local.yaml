@@ -1,9 +1,25 @@
-name: Test action
+# Test Local Action
+#
+# This reusable workflow tests the action using the current repository code.
+# It validates that uncommitted changes work correctly before they are released.
+#
+# Test Strategy:
+#   - Uses the local action code (uses: ./)
+#   - Exercises the default config, config overrides, the key input, sorting,
+#     the os_unix/os_all union derivations, and error paths (missing config
+#     file, unknown key)
+#
+# Permissions:
+#   - contents: read - Required to checkout repository code
+
+name: Test Local Action
 
 on:
-  push:
-    branches: [main]
-  pull_request:
+  workflow_call:
+  workflow_dispatch: # to trigger manually
+
+permissions:
+  contents: read
 
 jobs:
   default-config:
@@ -12,10 +28,15 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 2
     steps:
-      - uses: actions/checkout@v4
-      - id: cfg
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup workflow config
+        id: cfg
         uses: ./
+
       - name: Assert outputs match bundled config
         shell: bash
         run: |
@@ -51,12 +72,17 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 2
     steps:
-      - uses: actions/checkout@v4
-      - id: cfg
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup workflow config
+        id: cfg
         uses: ./
         with:
           config: tests/fixtures/override.json
+
       - name: Assert outputs reflect the override file, sorted
         shell: bash
         run: |
@@ -74,13 +100,18 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 2
     steps:
-      - uses: actions/checkout@v4
-      - id: cfg
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup workflow config
+        id: cfg
         uses: ./
         with:
           config: tests/fixtures/override.json
           key: label
+
       - name: Assert value output is the raw scalar
         shell: bash
         run: test '${{ steps.cfg.outputs.value }}' = '"custom"'
@@ -91,13 +122,18 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 2
     steps:
-      - uses: actions/checkout@v4
-      - id: cfg
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup workflow config
+        id: cfg
         uses: ./
         with:
           config: tests/fixtures/override.json
           key: python_versions
+
       - name: Assert value output is sorted
         shell: bash
         run: test '${{ steps.cfg.outputs.value }}' = '["3.10","3.11","3.12"]'
@@ -108,12 +144,17 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 2
     steps:
-      - uses: actions/checkout@v4
-      - id: cfg
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup workflow config
+        id: cfg
         uses: ./
         with:
           config: tests/fixtures/missing-keys.json
+
       - name: Assert absent keys default to empty arrays
         shell: bash
         run: |
@@ -131,13 +172,18 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 2
     steps:
-      - uses: actions/checkout@v4
-      - id: cfg
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup workflow config
+        id: cfg
         uses: ./
         continue-on-error: true
         with:
           config: tests/fixtures/does-not-exist.json
+
       - name: Assert the step failed
         shell: bash
         run: test '${{ steps.cfg.outcome }}' = 'failure'
@@ -148,14 +194,19 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 2
     steps:
-      - uses: actions/checkout@v4
-      - id: cfg
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup workflow config
+        id: cfg
         uses: ./
         continue-on-error: true
         with:
           config: tests/fixtures/override.json
           key: does_not_exist
+
       - name: Assert the step failed
         shell: bash
         run: test '${{ steps.cfg.outcome }}' = 'failure'
