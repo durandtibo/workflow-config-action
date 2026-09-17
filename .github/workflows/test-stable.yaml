@@ -7,8 +7,8 @@
 # Test Strategy:
 #   - Uses the published action (uses: durandtibo/workflow-config-action@main)
 #   - Exercises the default config, config overrides, the key input, sorting,
-#     the os_unix/os_all union derivations, and error paths (missing config
-#     file, unknown key)
+#     the python_versions/os_unix/os_all union derivations, partial-key
+#     derivation, and error paths (missing config file, unknown key)
 #
 # Permissions:
 #   - contents: read - Required to checkout repository code
@@ -43,7 +43,9 @@ jobs:
         run: |
           set -euo pipefail
           expected_config="$(jq -c '.' configs/versions.json)"
-          expected_python="$(jq -c '.python_versions | sort' configs/versions.json)"
+          expected_python_standard="$(jq -c '.python_versions_standard | sort' configs/versions.json)"
+          expected_python_threaded="$(jq -c '.python_versions_threaded | sort' configs/versions.json)"
+          expected_python="$(jq -c '(.python_versions_standard + .python_versions_threaded) | sort' configs/versions.json)"
           expected_ubuntu="$(jq -c '.os_ubuntu | sort' configs/versions.json)"
           expected_macos="$(jq -c '.os_macos | sort' configs/versions.json)"
           expected_windows="$(jq -c '.os_windows | sort' configs/versions.json)"
@@ -51,6 +53,8 @@ jobs:
           expected_all="$(jq -c '(.os_ubuntu + .os_macos + .os_windows) | sort' configs/versions.json)"
 
           test '${{ steps.cfg.outputs.config }}' = "$expected_config"
+          test '${{ steps.cfg.outputs.python_versions_standard }}' = "$expected_python_standard"
+          test '${{ steps.cfg.outputs.python_versions_threaded }}' = "$expected_python_threaded"
           test '${{ steps.cfg.outputs.python_versions }}' = "$expected_python"
           test '${{ steps.cfg.outputs.os_ubuntu }}' = "$expected_ubuntu"
           test '${{ steps.cfg.outputs.os_macos }}' = "$expected_macos"
@@ -66,6 +70,8 @@ jobs:
           test '${{ steps.cfg.outputs.os_unix }}' = "$union_unix"
           union_all="$(jq -cn --argjson a '${{ steps.cfg.outputs.os_ubuntu }}' --argjson b '${{ steps.cfg.outputs.os_macos }}' --argjson c '${{ steps.cfg.outputs.os_windows }}' '($a + $b + $c) | sort')"
           test '${{ steps.cfg.outputs.os_all }}' = "$union_all"
+          union_python="$(jq -cn --argjson a '${{ steps.cfg.outputs.python_versions_standard }}' --argjson b '${{ steps.cfg.outputs.python_versions_threaded }}' '($a + $b) | sort')"
+          test '${{ steps.cfg.outputs.python_versions }}' = "$union_python"
 
   config-override:
     strategy:
@@ -88,7 +94,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test '${{ steps.cfg.outputs.python_versions }}' = '["3.10","3.11","3.12"]'
+          test '${{ steps.cfg.outputs.python_versions_standard }}' = '["3.10","3.11","3.12"]'
+          test '${{ steps.cfg.outputs.python_versions_threaded }}' = '["3.13t"]'
+          test '${{ steps.cfg.outputs.python_versions }}' = '["3.10","3.11","3.12","3.13t"]'
           test '${{ steps.cfg.outputs.os_ubuntu }}' = '["ubuntu-22.04","ubuntu-latest"]'
           test '${{ steps.cfg.outputs.os_macos }}' = '["macos-14","macos-latest"]'
           test '${{ steps.cfg.outputs.os_windows }}' = '["windows-2022","windows-latest"]'
@@ -133,11 +141,41 @@ jobs:
         uses: durandtibo/workflow-config-action@main
         with:
           config: tests/fixtures/override.json
-          key: python_versions
+          key: python_versions_standard
 
       - name: Assert value output is sorted
         shell: bash
         run: test '${{ steps.cfg.outputs.value }}' = '["3.10","3.11","3.12"]'
+
+  partial-keys:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup workflow config
+        id: cfg
+        uses: durandtibo/workflow-config-action@main
+        with:
+          config: tests/fixtures/partial.json
+
+      - name: Assert derived outputs equal the single present side when the other is absent
+        shell: bash
+        run: |
+          set -euo pipefail
+          test '${{ steps.cfg.outputs.python_versions_standard }}' = '["3.11","3.12"]'
+          test '${{ steps.cfg.outputs.python_versions_threaded }}' = '[]'
+          test '${{ steps.cfg.outputs.python_versions }}' = '["3.11","3.12"]'
+          test '${{ steps.cfg.outputs.os_ubuntu }}' = '["ubuntu-22.04","ubuntu-latest"]'
+          test '${{ steps.cfg.outputs.os_macos }}' = '["macos-14","macos-latest"]'
+          test '${{ steps.cfg.outputs.os_windows }}' = '[]'
+          test '${{ steps.cfg.outputs.os_unix }}' = '["macos-14","macos-latest","ubuntu-22.04","ubuntu-latest"]'
+          test '${{ steps.cfg.outputs.os_all }}' = '["macos-14","macos-latest","ubuntu-22.04","ubuntu-latest"]'
 
   missing-keys-fallback:
     strategy:
@@ -160,6 +198,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          test '${{ steps.cfg.outputs.python_versions_standard }}' = '[]'
+          test '${{ steps.cfg.outputs.python_versions_threaded }}' = '[]'
           test '${{ steps.cfg.outputs.python_versions }}' = '[]'
           test '${{ steps.cfg.outputs.os_ubuntu }}' = '[]'
           test '${{ steps.cfg.outputs.os_macos }}' = '[]'
