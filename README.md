@@ -51,7 +51,7 @@ config file and passing its path via the `config` input:
 steps:
   - uses: actions/checkout@v4
   - id: cfg
-    uses: durandtibo/workflow-config-action@main
+    uses: durandtibo/workflow-config-action@v0.2
     with:
       config: .github/workflow-config.json
 ```
@@ -104,7 +104,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - id: cfg
-        uses: durandtibo/workflow-config-action@main
+        uses: durandtibo/workflow-config-action@v0.2
 
   test:
     needs: config
@@ -131,7 +131,7 @@ push/PR and calls two reusable workflows:
   action using the **current repository code** (`uses: ./`), so changes are
   validated before they're released.
 - [`test-stable.yaml`](.github/workflows/test-stable.yaml): exercises the
-  **published** action (`uses: durandtibo/workflow-config-action@main`), to
+  **published** action (`uses: durandtibo/workflow-config-action@v0.2`), to
   catch regressions in what consumers actually pick up.
 
 Both workflows run the same suite: default config, the `config` override

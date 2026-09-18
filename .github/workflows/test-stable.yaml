@@ -5,7 +5,7 @@
 # regressions before consumers pick up a new default config.
 #
 # Test Strategy:
-#   - Uses the published action (uses: durandtibo/workflow-config-action@main)
+#   - Uses the published action (uses: durandtibo/workflow-config-action@v0.2)
 #   - Exercises the default config, config overrides, the key input, sorting,
 #     the python_versions/os_unix/os_all union derivations, partial-key
 #     derivation, and error paths (missing config file, unknown key)
@@ -36,7 +36,7 @@ jobs:
 
       - name: Setup workflow config
         id: cfg
-        uses: durandtibo/workflow-config-action@main
+        uses: durandtibo/workflow-config-action@v0.2
 
       - name: Assert outputs match bundled config
         shell: bash
@@ -86,7 +86,7 @@ jobs:
 
       - name: Setup workflow config
         id: cfg
-        uses: durandtibo/workflow-config-action@main
+        uses: durandtibo/workflow-config-action@v0.2
         with:
           config: tests/fixtures/override.json
 
@@ -116,7 +116,7 @@ jobs:
 
       - name: Setup workflow config
         id: cfg
-        uses: durandtibo/workflow-config-action@main
+        uses: durandtibo/workflow-config-action@v0.2
         with:
           config: tests/fixtures/override.json
           key: label
@@ -138,7 +138,7 @@ jobs:
 
       - name: Setup workflow config
         id: cfg
-        uses: durandtibo/workflow-config-action@main
+        uses: durandtibo/workflow-config-action@v0.2
         with:
           config: tests/fixtures/override.json
           key: python_versions_standard
@@ -160,7 +160,7 @@ jobs:
 
       - name: Setup workflow config
         id: cfg
-        uses: durandtibo/workflow-config-action@main
+        uses: durandtibo/workflow-config-action@v0.2
         with:
           config: tests/fixtures/partial.json
 
@@ -190,7 +190,7 @@ jobs:
 
       - name: Setup workflow config
         id: cfg
-        uses: durandtibo/workflow-config-action@main
+        uses: durandtibo/workflow-config-action@v0.2
         with:
           config: tests/fixtures/missing-keys.json
 
@@ -220,7 +220,7 @@ jobs:
 
       - name: Setup workflow config
         id: cfg
-        uses: durandtibo/workflow-config-action@main
+        uses: durandtibo/workflow-config-action@v0.2
         continue-on-error: true
         with:
           config: tests/fixtures/does-not-exist.json
@@ -242,7 +242,7 @@ jobs:
 
       - name: Setup workflow config
         id: cfg
-        uses: durandtibo/workflow-config-action@main
+        uses: durandtibo/workflow-config-action@v0.2
         continue-on-error: true
         with:
           config: tests/fixtures/override.json
