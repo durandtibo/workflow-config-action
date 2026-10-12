@@ -63,10 +63,10 @@ built-in `configs/versions.json`.
 
 ## ⚙️ Inputs
 
-| Name     | Description                                                                  | Default                          |
-|----------|-------------------------------------------------------------------------------|------------------------------------|
-| `config` | Path to a JSON config file to override the defaults, relative to the calling repo's workspace | *(empty, uses built-in config)* |
-| `key`    | Optional key to extract as the generic `value` output                        | *(none)*                          |
+| Name     | Description                                                                                   | Default                         |
+| -------- | --------------------------------------------------------------------------------------------- | ------------------------------- |
+| `config` | Path to a JSON config file to override the defaults, relative to the calling repo's workspace | _(empty, uses built-in config)_ |
+| `key`    | Optional key to extract as the generic `value` output                                         | _(none)_                        |
 
 ## 📤 Outputs
 
@@ -79,18 +79,18 @@ corresponding output (and `python_versions`/`os_unix`/`os_all`, if all of
 their inputs are absent) defaults to an empty array (`[]`) rather than
 erroring.
 
-| Name                        | Description                                  |
-|-----------------------------|-----------------------------------------------|
-| `config`                    | Full config file content as compact JSON (not sorted) |
-| `python_versions`           | JSON array of all Python versions, sorted (derived: `python_versions_standard` + `python_versions_threaded`; `[]` if both are absent) |
-| `python_versions_standard`  | JSON array of standard (non-threaded) Python versions, sorted (`[]` if absent from the config) |
-| `python_versions_threaded`  | JSON array of free-threaded Python versions, sorted (`[]` if absent from the config) |
-| `os_unix`                   | JSON array of all Unix-based OS runner labels, sorted (derived: `os_ubuntu` + `os_macos`; `[]` if both are absent) |
-| `os_all`                    | JSON array of all OS runner labels, sorted (derived: `os_ubuntu` + `os_macos` + `os_windows`; `[]` if all are absent) |
-| `os_ubuntu`                 | JSON array of Ubuntu OS runner labels, sorted (`[]` if absent from the config) |
-| `os_macos`                  | JSON array of macOS runner labels, sorted (`[]` if absent from the config) |
-| `os_windows`                | JSON array of Windows runner labels, sorted (`[]` if absent from the config) |
-| `value`                     | Value of the `key` input, as compact JSON (sorted if it's an array); the step fails if the key is missing |
+| Name                       | Description                                                                                                                           |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `config`                   | Full config file content as compact JSON (not sorted)                                                                                 |
+| `python_versions`          | JSON array of all Python versions, sorted (derived: `python_versions_standard` + `python_versions_threaded`; `[]` if both are absent) |
+| `python_versions_standard` | JSON array of standard (non-threaded) Python versions, sorted (`[]` if absent from the config)                                        |
+| `python_versions_threaded` | JSON array of free-threaded Python versions, sorted (`[]` if absent from the config)                                                  |
+| `os_unix`                  | JSON array of all Unix-based OS runner labels, sorted (derived: `os_ubuntu` + `os_macos`; `[]` if both are absent)                    |
+| `os_all`                   | JSON array of all OS runner labels, sorted (derived: `os_ubuntu` + `os_macos` + `os_windows`; `[]` if all are absent)                 |
+| `os_ubuntu`                | JSON array of Ubuntu OS runner labels, sorted (`[]` if absent from the config)                                                        |
+| `os_macos`                 | JSON array of macOS runner labels, sorted (`[]` if absent from the config)                                                            |
+| `os_windows`               | JSON array of Windows runner labels, sorted (`[]` if absent from the config)                                                          |
+| `value`                    | Value of the `key` input, as compact JSON (sorted if it's an array); the step fails if the key is missing                             |
 
 ## 🚀 Usage
 
