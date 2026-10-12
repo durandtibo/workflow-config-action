@@ -127,10 +127,10 @@ full working example.
 [`.github/workflows/ci.yaml`](.github/workflows/ci.yaml) runs on every
 push/PR and calls two reusable workflows:
 
-- [`test-local.yaml`](.github/workflows/test-local.yaml): exercises the
+- [`ci-test-local.yaml`](.github/workflows/ci-test-local.yaml): exercises the
   action using the **current repository code** (`uses: ./`), so changes are
   validated before they're released.
-- [`test-stable.yaml`](.github/workflows/test-stable.yaml): exercises the
+- [`ci-test-stable.yaml`](.github/workflows/ci-test-stable.yaml): exercises the
   **published** action (`uses: durandtibo/workflow-config-action@v0.2`), to
   catch regressions in what consumers actually pick up.
 
