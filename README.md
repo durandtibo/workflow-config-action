@@ -1,5 +1,23 @@
 # 🛠️ workflow-config-action
 
+<p align="center">
+    <a href="https://github.com/durandtibo/workflow-config-action/actions/workflows/ci.yaml">
+        <img alt="CI" src="https://github.com/durandtibo/workflow-config-action/actions/workflows/ci.yaml/badge.svg">
+    </a>
+    <a href="https://github.com/durandtibo/workflow-config-action/actions/workflows/ci-test-stable.yaml">
+        <img alt="Test stable" src="https://github.com/durandtibo/workflow-config-action/actions/workflows/ci-test-stable.yaml/badge.svg">
+    </a>
+    <a href="https://github.com/durandtibo/workflow-config-action/actions/workflows/security-scorecard.yaml">
+        <img alt="Scorecard" src="https://github.com/durandtibo/workflow-config-action/actions/workflows/security-scorecard.yaml/badge.svg">
+    </a>
+    <a href="https://github.com/durandtibo/workflow-config-action/blob/main/LICENSE">
+        <img alt="License" src="https://img.shields.io/github/license/durandtibo/workflow-config-action">
+    </a>
+    <a href="https://github.com/durandtibo/workflow-config-action/releases">
+        <img alt="Release" src="https://img.shields.io/github/v/release/durandtibo/workflow-config-action">
+    </a>
+</p>
+
 A composite GitHub Action that exposes reusable workflow configuration
 (Python versions, OS matrices, etc.) as job outputs, so multiple workflows
 and repos can share a single source of truth instead of duplicating
