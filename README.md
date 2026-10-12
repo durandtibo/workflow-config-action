@@ -119,7 +119,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 ```
 
-See [`.github/workflows/example.yml`](.github/workflows/example.yml) for a
+See [`.github/workflows/ci-example.yaml`](.github/workflows/ci-example.yaml) for a
 full working example.
 
 ## ✅ Testing
