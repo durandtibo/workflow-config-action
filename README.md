@@ -4,12 +4,6 @@
     <a href="https://github.com/durandtibo/workflow-config-action/actions/workflows/ci.yaml">
         <img alt="CI" src="https://github.com/durandtibo/workflow-config-action/actions/workflows/ci.yaml/badge.svg">
     </a>
-    <a href="https://github.com/durandtibo/workflow-config-action/actions/workflows/ci-test-local.yaml">
-        <img alt="Test local" src="https://github.com/durandtibo/workflow-config-action/actions/workflows/ci-test-local.yaml/badge.svg">
-    </a>
-    <a href="https://github.com/durandtibo/workflow-config-action/actions/workflows/ci-test-stable.yaml">
-        <img alt="Test stable" src="https://github.com/durandtibo/workflow-config-action/actions/workflows/ci-test-stable.yaml/badge.svg">
-    </a>
     <a href="https://github.com/durandtibo/workflow-config-action/actions/workflows/security-scorecard.yaml">
         <img alt="Scorecard" src="https://github.com/durandtibo/workflow-config-action/actions/workflows/security-scorecard.yaml/badge.svg">
     </a>
