@@ -42,15 +42,18 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          expected_config="$(jq -c '.' configs/versions.json)"
-          expected_python_standard="$(jq -c '.python_versions_standard | sort' configs/versions.json)"
-          expected_python_threaded="$(jq -c '.python_versions_threaded | sort' configs/versions.json)"
-          expected_python="$(jq -c '(.python_versions_standard + .python_versions_threaded) | sort' configs/versions.json)"
-          expected_ubuntu="$(jq -c '.os_ubuntu | sort' configs/versions.json)"
-          expected_macos="$(jq -c '.os_macos | sort' configs/versions.json)"
-          expected_windows="$(jq -c '.os_windows | sort' configs/versions.json)"
-          expected_unix="$(jq -c '(.os_ubuntu + .os_macos) | sort' configs/versions.json)"
-          expected_all="$(jq -c '(.os_ubuntu + .os_macos + .os_windows) | sort' configs/versions.json)"
+          # The published action bundles its own config, which can differ from
+          # the working tree, so derive expectations from its `config` output.
+          config='${{ steps.cfg.outputs.config }}'
+          expected_config="$(jq -c '.' <<< "$config")"
+          expected_python_standard="$(jq -c '.python_versions_standard | sort' <<< "$config")"
+          expected_python_threaded="$(jq -c '.python_versions_threaded | sort' <<< "$config")"
+          expected_python="$(jq -c '(.python_versions_standard + .python_versions_threaded) | sort' <<< "$config")"
+          expected_ubuntu="$(jq -c '.os_ubuntu | sort' <<< "$config")"
+          expected_macos="$(jq -c '.os_macos | sort' <<< "$config")"
+          expected_windows="$(jq -c '.os_windows | sort' <<< "$config")"
+          expected_unix="$(jq -c '(.os_ubuntu + .os_macos) | sort' <<< "$config")"
+          expected_all="$(jq -c '(.os_ubuntu + .os_macos + .os_windows) | sort' <<< "$config")"
 
           test '${{ steps.cfg.outputs.config }}' = "$expected_config"
           test '${{ steps.cfg.outputs.python_versions_standard }}' = "$expected_python_standard"
