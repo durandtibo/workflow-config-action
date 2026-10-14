@@ -36,7 +36,7 @@ jobs:
 
       - name: Setup workflow config
         id: cfg
-        uses: durandtibo/workflow-config-action@v0.2
+        uses: durandtibo/workflow-config-action@8c406999ac8ac3cafe656c263759d8ddea3a4edb # ratchet:durandtibo/workflow-config-action@v0.2
 
       - name: Assert outputs match bundled config
         shell: bash
@@ -89,7 +89,7 @@ jobs:
 
       - name: Setup workflow config
         id: cfg
-        uses: durandtibo/workflow-config-action@v0.2
+        uses: durandtibo/workflow-config-action@8c406999ac8ac3cafe656c263759d8ddea3a4edb # ratchet:durandtibo/workflow-config-action@v0.2
         with:
           config: tests/fixtures/override.json
 
@@ -119,7 +119,7 @@ jobs:
 
       - name: Setup workflow config
         id: cfg
-        uses: durandtibo/workflow-config-action@v0.2
+        uses: durandtibo/workflow-config-action@8c406999ac8ac3cafe656c263759d8ddea3a4edb # ratchet:durandtibo/workflow-config-action@v0.2
         with:
           config: tests/fixtures/override.json
           key: label
@@ -141,7 +141,7 @@ jobs:
 
       - name: Setup workflow config
         id: cfg
-        uses: durandtibo/workflow-config-action@v0.2
+        uses: durandtibo/workflow-config-action@8c406999ac8ac3cafe656c263759d8ddea3a4edb # ratchet:durandtibo/workflow-config-action@v0.2
         with:
           config: tests/fixtures/override.json
           key: python_versions_standard
@@ -163,7 +163,7 @@ jobs:
 
       - name: Setup workflow config
         id: cfg
-        uses: durandtibo/workflow-config-action@v0.2
+        uses: durandtibo/workflow-config-action@8c406999ac8ac3cafe656c263759d8ddea3a4edb # ratchet:durandtibo/workflow-config-action@v0.2
         with:
           config: tests/fixtures/partial.json
 
@@ -193,7 +193,7 @@ jobs:
 
       - name: Setup workflow config
         id: cfg
-        uses: durandtibo/workflow-config-action@v0.2
+        uses: durandtibo/workflow-config-action@8c406999ac8ac3cafe656c263759d8ddea3a4edb # ratchet:durandtibo/workflow-config-action@v0.2
         with:
           config: tests/fixtures/missing-keys.json
 
@@ -223,7 +223,7 @@ jobs:
 
       - name: Setup workflow config
         id: cfg
-        uses: durandtibo/workflow-config-action@v0.2
+        uses: durandtibo/workflow-config-action@8c406999ac8ac3cafe656c263759d8ddea3a4edb # ratchet:durandtibo/workflow-config-action@v0.2
         continue-on-error: true
         with:
           config: tests/fixtures/does-not-exist.json
@@ -245,7 +245,7 @@ jobs:
 
       - name: Setup workflow config
         id: cfg
-        uses: durandtibo/workflow-config-action@v0.2
+        uses: durandtibo/workflow-config-action@8c406999ac8ac3cafe656c263759d8ddea3a4edb # ratchet:durandtibo/workflow-config-action@v0.2
         continue-on-error: true
         with:
           config: tests/fixtures/override.json
