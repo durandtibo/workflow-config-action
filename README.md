@@ -66,7 +66,7 @@ config file and passing its path via the `config` input:
 steps:
   - uses: actions/checkout@v4
   - id: cfg
-    uses: durandtibo/workflow-config-action@v0.2
+    uses: durandtibo/workflow-config-action@v0.3.0
     with:
       config: .github/workflow-config.json
 ```
