@@ -8,7 +8,7 @@ A GitHub composite action (`action.yml`) that exposes shared workflow configurat
 versions, OS runner labels) as job outputs. The default config lives in `configs/versions.json`;
 consumers can override it with the `config` input. The logic is inline in the `load` step of
 `action.yml` (bash and `jq`). There is no separate script. The action is tested by workflows in
-CI (`ci-test-local.yaml`, `ci-test-stable.yaml`) using the fixtures in `tests/fixtures/`.
+CI (`ci-action.yaml`, `nightly-test-released.yaml`) using the fixtures in `tests/fixtures/`.
 
 ## Environment
 
@@ -52,9 +52,13 @@ Files are prefixed by role:
 
 - `ci.yaml`: entry point for pull requests, pushes to `main`, a nightly schedule and manual runs.
   It holds no steps, only jobs that call the reusable `ci-*.yaml` workflows below.
-  - `ci-test-local.yaml`: runs the action from this checkout (`uses: ./`), i.e. the version not
+  - `lib-get-test-matrix.yaml`: loads the OS and Python lists from the latest released action
+    once, and passes them to the jobs that need them.
+  - `ci-format.yaml`: runs the `make lint-*` targets.
+  - `ci-action.yaml`: runs the action from this checkout (`uses: ./`), i.e. the version not
     released yet, against the default config, overrides, the `key` input, and error paths.
-  - `ci-test-stable.yaml`: runs the latest released action.
+- `nightly.yaml`: nightly entry point. It calls `nightly-test-released.yaml`, which runs the
+  latest released action with the same tests as `ci-action.yaml`.
 - `ci-verify-workflows.yaml`: lints the workflow files themselves. It has its own triggers and is
   not called from `ci.yaml`, so it can be a required check.
 - `example.yml`: example usage of the action for consumers.
@@ -66,14 +70,17 @@ Conventions:
 
 - Set `permissions` on every job (including jobs that call a reusable workflow). Every workflow
   has `permissions: {}` at the workflow level (it grants nothing), never a grant.
-- Each `ci-*` check is a `workflow_call` workflow that also has `workflow_dispatch`, so it can be
-  run alone. Add a new check as a new `ci-<name>.yaml` plus a job in `ci.yaml`.
+- Each `ci-*` check is a `workflow_call` workflow. When it needs no input it also has
+  `workflow_dispatch`, so it can be run alone. The test workflows take the `test-matrix` input
+  from `lib-get-test-matrix.yaml`, so they only run through their caller. Add a new check as a
+  new `ci-<name>.yaml` plus a job in `ci.yaml`.
 - Put `make` targets in the steps rather than duplicating commands, so local runs and CI match.
 - Start each file with a comment saying what it does, and update it when the behaviour changes.
 
 ## Tests
 
-- Test cases are steps in `ci-test-local.yaml`, with inputs in `tests/fixtures/`.
+- Test cases are jobs in `ci-action.yaml`, mirrored in `nightly-test-released.yaml`, with inputs
+  in `tests/fixtures/`.
 - One behaviour per step; assert on the exact output value.
 - Cover success, failure, and edge cases (missing keys, partial configs, unsorted lists, unknown
   key, missing file).

@@ -1,0 +1,343 @@
+# Workflow testing the latest released action, to catch regressions in what consumers pick up
+# on multiple operating systems. It mirrors the tests of ci-action.yaml, which tests the
+# current checkout instead. Update the pinned release below when a new version is released.
+#
+# The tests use the fixtures and the expectations of the current checkout, except for the
+# default config: the released action bundles its own config, which can differ from the
+# working tree, so the expectations are derived from its `config` output.
+
+name: Test Released Action
+on:
+  workflow_call:
+    inputs:
+      test-matrix:
+        description: "JSON test matrix from lib-get-test-matrix.yaml, loaded once by the caller"
+        required: true
+        type: string
+
+permissions: {}
+
+jobs:
+  default-config:
+    permissions:
+      contents: read
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    strategy:
+      max-parallel: 8
+      fail-fast: false
+      matrix:
+        os: ${{ fromJson(inputs.test-matrix).os_matrix }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7
+
+      - name: Setup workflow config
+        id: cfg
+        uses: durandtibo/workflow-config-action@293a1c5eff18a9c485359d32d3035fdaaddcb955 # ratchet:durandtibo/workflow-config-action@v0.3.0
+
+      - name: Assert outputs match the config of the released action
+        shell: bash
+        env:
+          CONFIG: ${{ steps.cfg.outputs.config }}
+          PYTHON_VERSIONS_STANDARD: ${{ steps.cfg.outputs.python_versions_standard }}
+          PYTHON_VERSIONS_THREADED: ${{ steps.cfg.outputs.python_versions_threaded }}
+          PYTHON_VERSIONS: ${{ steps.cfg.outputs.python_versions }}
+          OS_UBUNTU: ${{ steps.cfg.outputs.os_ubuntu }}
+          OS_MACOS: ${{ steps.cfg.outputs.os_macos }}
+          OS_WINDOWS: ${{ steps.cfg.outputs.os_windows }}
+          OS_UNIX: ${{ steps.cfg.outputs.os_unix }}
+          OS_ALL: ${{ steps.cfg.outputs.os_all }}
+        run: |
+          set -euo pipefail
+          test "$PYTHON_VERSIONS_STANDARD" = "$(jq -c '.python_versions_standard | sort' <<< "$CONFIG")"
+          test "$PYTHON_VERSIONS_THREADED" = "$(jq -c '.python_versions_threaded | sort' <<< "$CONFIG")"
+          test "$PYTHON_VERSIONS" = "$(jq -c '(.python_versions_standard + .python_versions_threaded) | sort' <<< "$CONFIG")"
+          test "$OS_UBUNTU" = "$(jq -c '.os_ubuntu | sort' <<< "$CONFIG")"
+          test "$OS_MACOS" = "$(jq -c '.os_macos | sort' <<< "$CONFIG")"
+          test "$OS_WINDOWS" = "$(jq -c '.os_windows | sort' <<< "$CONFIG")"
+          test "$OS_UNIX" = "$(jq -c '(.os_ubuntu + .os_macos) | sort' <<< "$CONFIG")"
+          test "$OS_ALL" = "$(jq -c '(.os_ubuntu + .os_macos + .os_windows) | sort' <<< "$CONFIG")"
+          echo "✅ The outputs match the config of the released action"
+
+      - name: Assert os_unix, os_all and python_versions are the unions of their parts
+        shell: bash
+        env:
+          PYTHON_VERSIONS_STANDARD: ${{ steps.cfg.outputs.python_versions_standard }}
+          PYTHON_VERSIONS_THREADED: ${{ steps.cfg.outputs.python_versions_threaded }}
+          PYTHON_VERSIONS: ${{ steps.cfg.outputs.python_versions }}
+          OS_UBUNTU: ${{ steps.cfg.outputs.os_ubuntu }}
+          OS_MACOS: ${{ steps.cfg.outputs.os_macos }}
+          OS_WINDOWS: ${{ steps.cfg.outputs.os_windows }}
+          OS_UNIX: ${{ steps.cfg.outputs.os_unix }}
+          OS_ALL: ${{ steps.cfg.outputs.os_all }}
+        run: |
+          set -euo pipefail
+          union_unix="$(jq -cn --argjson a "$OS_UBUNTU" --argjson b "$OS_MACOS" '($a + $b) | sort')"
+          test "$OS_UNIX" = "$union_unix"
+          union_all="$(jq -cn --argjson a "$OS_UBUNTU" --argjson b "$OS_MACOS" --argjson c "$OS_WINDOWS" '($a + $b + $c) | sort')"
+          test "$OS_ALL" = "$union_all"
+          union_python="$(jq -cn --argjson a "$PYTHON_VERSIONS_STANDARD" --argjson b "$PYTHON_VERSIONS_THREADED" '($a + $b) | sort')"
+          test "$PYTHON_VERSIONS" = "$union_python"
+          echo "✅ The derived outputs are the unions of their parts"
+
+  config-override:
+    permissions:
+      contents: read
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    strategy:
+      max-parallel: 8
+      fail-fast: false
+      matrix:
+        os: ${{ fromJson(inputs.test-matrix).os_latest }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7
+
+      - name: Setup workflow config
+        id: cfg
+        uses: durandtibo/workflow-config-action@293a1c5eff18a9c485359d32d3035fdaaddcb955 # ratchet:durandtibo/workflow-config-action@v0.3.0
+        with:
+          config: tests/fixtures/override.json
+
+      - name: Assert outputs reflect the override file, sorted
+        shell: bash
+        env:
+          PYTHON_VERSIONS_STANDARD: ${{ steps.cfg.outputs.python_versions_standard }}
+          PYTHON_VERSIONS_THREADED: ${{ steps.cfg.outputs.python_versions_threaded }}
+          PYTHON_VERSIONS: ${{ steps.cfg.outputs.python_versions }}
+          OS_UBUNTU: ${{ steps.cfg.outputs.os_ubuntu }}
+          OS_MACOS: ${{ steps.cfg.outputs.os_macos }}
+          OS_WINDOWS: ${{ steps.cfg.outputs.os_windows }}
+          OS_UNIX: ${{ steps.cfg.outputs.os_unix }}
+          OS_ALL: ${{ steps.cfg.outputs.os_all }}
+        run: |
+          set -euo pipefail
+          test "$PYTHON_VERSIONS_STANDARD" = '["3.10","3.11","3.12"]'
+          test "$PYTHON_VERSIONS_THREADED" = '["3.13t"]'
+          test "$PYTHON_VERSIONS" = '["3.10","3.11","3.12","3.13t"]'
+          test "$OS_UBUNTU" = '["ubuntu-22.04","ubuntu-latest"]'
+          test "$OS_MACOS" = '["macos-14","macos-latest"]'
+          test "$OS_WINDOWS" = '["windows-2022","windows-latest"]'
+          test "$OS_UNIX" = '["macos-14","macos-latest","ubuntu-22.04","ubuntu-latest"]'
+          test "$OS_ALL" = '["macos-14","macos-latest","ubuntu-22.04","ubuntu-latest","windows-2022","windows-latest"]'
+          echo "✅ The outputs reflect the override file"
+
+  key-scalar:
+    permissions:
+      contents: read
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    strategy:
+      max-parallel: 8
+      fail-fast: false
+      matrix:
+        os: ${{ fromJson(inputs.test-matrix).os_latest }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7
+
+      - name: Setup workflow config
+        id: cfg
+        uses: durandtibo/workflow-config-action@293a1c5eff18a9c485359d32d3035fdaaddcb955 # ratchet:durandtibo/workflow-config-action@v0.3.0
+        with:
+          config: tests/fixtures/override.json
+          key: label
+
+      - name: Assert value output is the raw scalar
+        shell: bash
+        env:
+          VALUE: ${{ steps.cfg.outputs.value }}
+        run: |
+          test "$VALUE" = '"custom"'
+          echo "✅ The value output is the raw scalar"
+
+  key-array:
+    permissions:
+      contents: read
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    strategy:
+      max-parallel: 8
+      fail-fast: false
+      matrix:
+        os: ${{ fromJson(inputs.test-matrix).os_latest }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7
+
+      - name: Setup workflow config
+        id: cfg
+        uses: durandtibo/workflow-config-action@293a1c5eff18a9c485359d32d3035fdaaddcb955 # ratchet:durandtibo/workflow-config-action@v0.3.0
+        with:
+          config: tests/fixtures/override.json
+          key: python_versions_standard
+
+      - name: Assert value output is sorted
+        shell: bash
+        env:
+          VALUE: ${{ steps.cfg.outputs.value }}
+        run: |
+          test "$VALUE" = '["3.10","3.11","3.12"]'
+          echo "✅ The value output is sorted"
+
+  partial-keys:
+    permissions:
+      contents: read
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    strategy:
+      max-parallel: 8
+      fail-fast: false
+      matrix:
+        os: ${{ fromJson(inputs.test-matrix).os_latest }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7
+
+      - name: Setup workflow config
+        id: cfg
+        uses: durandtibo/workflow-config-action@293a1c5eff18a9c485359d32d3035fdaaddcb955 # ratchet:durandtibo/workflow-config-action@v0.3.0
+        with:
+          config: tests/fixtures/partial.json
+
+      - name: Assert derived outputs equal the single present side when the other is absent
+        shell: bash
+        env:
+          PYTHON_VERSIONS_STANDARD: ${{ steps.cfg.outputs.python_versions_standard }}
+          PYTHON_VERSIONS_THREADED: ${{ steps.cfg.outputs.python_versions_threaded }}
+          PYTHON_VERSIONS: ${{ steps.cfg.outputs.python_versions }}
+          OS_UBUNTU: ${{ steps.cfg.outputs.os_ubuntu }}
+          OS_MACOS: ${{ steps.cfg.outputs.os_macos }}
+          OS_WINDOWS: ${{ steps.cfg.outputs.os_windows }}
+          OS_UNIX: ${{ steps.cfg.outputs.os_unix }}
+          OS_ALL: ${{ steps.cfg.outputs.os_all }}
+        run: |
+          set -euo pipefail
+          test "$PYTHON_VERSIONS_STANDARD" = '["3.11","3.12"]'
+          test "$PYTHON_VERSIONS_THREADED" = '[]'
+          test "$PYTHON_VERSIONS" = '["3.11","3.12"]'
+          test "$OS_UBUNTU" = '["ubuntu-22.04","ubuntu-latest"]'
+          test "$OS_MACOS" = '["macos-14","macos-latest"]'
+          test "$OS_WINDOWS" = '[]'
+          test "$OS_UNIX" = '["macos-14","macos-latest","ubuntu-22.04","ubuntu-latest"]'
+          test "$OS_ALL" = '["macos-14","macos-latest","ubuntu-22.04","ubuntu-latest"]'
+          echo "✅ The derived outputs equal the single present side"
+
+  missing-keys-fallback:
+    permissions:
+      contents: read
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    strategy:
+      max-parallel: 8
+      fail-fast: false
+      matrix:
+        os: ${{ fromJson(inputs.test-matrix).os_latest }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7
+
+      - name: Setup workflow config
+        id: cfg
+        uses: durandtibo/workflow-config-action@293a1c5eff18a9c485359d32d3035fdaaddcb955 # ratchet:durandtibo/workflow-config-action@v0.3.0
+        with:
+          config: tests/fixtures/missing-keys.json
+
+      - name: Assert absent keys default to empty arrays
+        shell: bash
+        env:
+          PYTHON_VERSIONS_STANDARD: ${{ steps.cfg.outputs.python_versions_standard }}
+          PYTHON_VERSIONS_THREADED: ${{ steps.cfg.outputs.python_versions_threaded }}
+          PYTHON_VERSIONS: ${{ steps.cfg.outputs.python_versions }}
+          OS_UBUNTU: ${{ steps.cfg.outputs.os_ubuntu }}
+          OS_MACOS: ${{ steps.cfg.outputs.os_macos }}
+          OS_WINDOWS: ${{ steps.cfg.outputs.os_windows }}
+          OS_UNIX: ${{ steps.cfg.outputs.os_unix }}
+          OS_ALL: ${{ steps.cfg.outputs.os_all }}
+        run: |
+          set -euo pipefail
+          test "$PYTHON_VERSIONS_STANDARD" = '[]'
+          test "$PYTHON_VERSIONS_THREADED" = '[]'
+          test "$PYTHON_VERSIONS" = '[]'
+          test "$OS_UBUNTU" = '[]'
+          test "$OS_MACOS" = '[]'
+          test "$OS_WINDOWS" = '[]'
+          test "$OS_UNIX" = '[]'
+          test "$OS_ALL" = '[]'
+          echo "✅ The absent keys default to empty arrays"
+
+  # The error annotation of the steps below is expected: the step must fail
+  missing-config-file:
+    permissions:
+      contents: read
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    strategy:
+      max-parallel: 8
+      fail-fast: false
+      matrix:
+        os: ${{ fromJson(inputs.test-matrix).os_latest }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7
+
+      - name: Setup workflow config with a missing config file
+        id: cfg
+        uses: durandtibo/workflow-config-action@293a1c5eff18a9c485359d32d3035fdaaddcb955 # ratchet:durandtibo/workflow-config-action@v0.3.0
+        continue-on-error: true
+        with:
+          config: tests/fixtures/does-not-exist.json
+
+      - name: Check that the missing config file failed the step
+        shell: bash
+        env:
+          OUTCOME: ${{ steps.cfg.outcome }}
+        run: |
+          if [ "$OUTCOME" != "failure" ]; then
+            echo "::error::A missing config file must fail the action (outcome: '$OUTCOME')"
+            exit 1
+          fi
+          echo "✅ The missing config file failed the action"
+
+  unknown-key:
+    permissions:
+      contents: read
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    strategy:
+      max-parallel: 8
+      fail-fast: false
+      matrix:
+        os: ${{ fromJson(inputs.test-matrix).os_latest }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7
+
+      - name: Setup workflow config with an unknown key
+        id: cfg
+        uses: durandtibo/workflow-config-action@293a1c5eff18a9c485359d32d3035fdaaddcb955 # ratchet:durandtibo/workflow-config-action@v0.3.0
+        continue-on-error: true
+        with:
+          config: tests/fixtures/override.json
+          key: does_not_exist
+
+      - name: Check that the unknown key failed the step
+        shell: bash
+        env:
+          OUTCOME: ${{ steps.cfg.outcome }}
+        run: |
+          if [ "$OUTCOME" != "failure" ]; then
+            echo "::error::An unknown key must fail the action (outcome: '$OUTCOME')"
+            exit 1
+          fi
+          echo "✅ The unknown key failed the action"

@@ -5,12 +5,14 @@ on:
   push:
     branches: [main]
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   config:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     outputs:
       python_versions: ${{ steps.cfg.outputs.python_versions }}
       os_ubuntu: ${{ steps.cfg.outputs.os_ubuntu }}
@@ -21,6 +23,9 @@ jobs:
 
   test:
     needs: config
+    permissions:
+      contents: read
+    timeout-minutes: 5
     strategy:
       matrix:
         python-version: ${{ fromJSON(needs.config.outputs.python_versions) }}
