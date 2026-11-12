@@ -140,27 +140,41 @@ full working example.
 ## ✅ Testing
 
 [`.github/workflows/ci.yaml`](.github/workflows/ci.yaml) runs on every
-push/PR and calls two reusable workflows:
+push/PR, nightly and on manual dispatch. It loads the shared test matrix once
+with [`lib-get-test-matrix.yaml`](.github/workflows/lib-get-test-matrix.yaml),
+which reads the OS list from the default config of this action, and calls two
+reusable workflows:
 
-- [`ci-test-local.yaml`](.github/workflows/ci-test-local.yaml): exercises the
-  action using the **current repository code** (`uses: ./`), so changes are
+- [`ci-format.yaml`](.github/workflows/ci-format.yaml): lints the Markdown
+  and YAML files with the `make lint-*` targets.
+- [`ci-action.yaml`](.github/workflows/ci-action.yaml): exercises the action
+  using the **current repository code** (`uses: ./`), so changes are
   validated before they're released.
-- [`ci-test-stable.yaml`](.github/workflows/ci-test-stable.yaml): exercises the
-  **published** action (`uses: durandtibo/workflow-config-action@v0.2`), to
-  catch regressions in what consumers actually pick up.
 
-Both workflows run the same suite: default config, the `config` override
+[`.github/workflows/nightly.yaml`](.github/workflows/nightly.yaml) runs
+[`nightly-test-released.yaml`](.github/workflows/nightly-test-released.yaml)
+every night. It exercises the **released** action
+(`durandtibo/workflow-config-action`, pinned to a release), to catch
+regressions in what consumers actually pick up.
+[`ci-verify-workflows.yaml`](.github/workflows/ci-verify-workflows.yaml) lints
+the workflow files themselves and has its own triggers.
+
+Both test workflows run the same suite: default config, the `config` override
 input (using fixtures under [`tests/fixtures`](tests/fixtures)), the `key`
 input for both scalar and array values, sorting, the
 `python_versions`/`os_unix`/`os_all` union derivations (both when all their
 inputs are present and when only some are, e.g. `python_versions_threaded`
 or `os_windows` absent), missing/absent-key config files, and unknown
 keys, each as a separate job asserting on the action's outputs with `jq`.
-Every job runs on an `[ubuntu-latest, macos-latest, windows-latest]` matrix
-(with `fail-fast: false`) to confirm the action's bash/`jq` logic behaves
-identically across all three GitHub-hosted runner OSes.
+The default config test runs on every OS of the default config
+(`os_all`, with `fail-fast: false`), to confirm the action's bash/`jq` logic
+behaves identically across the GitHub-hosted runner OSes. The other tests run
+on the `*-latest` runners only.
 
-Both workflows can also be triggered manually (`workflow_dispatch`).
+`ci-action.yaml` and `nightly-test-released.yaml` are called with the test
+matrix as input, so they are only triggered through `ci.yaml` and
+`nightly.yaml`. The other workflows can be triggered manually
+(`workflow_dispatch`).
 
 ## 📄 License
 
