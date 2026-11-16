@@ -26,9 +26,16 @@ CI (`ci-action.yaml`, `nightly-test-released.yaml`) using the fixtures in `tests
   push to `main`.
 - Name branches `<type>/<short-description>` in kebab-case, with type one of: `feat`, `bugfix`,
   `hotfix`, `docs`, `refactor`, `perf`, `test`, `chore`, `ci`.
+- Write commit messages and PR titles as a short imperative sentence starting with a verb such as
+  `Add`, `Fix`, `Update`, `Remove` or `Improve`. Do not use conventional-commit prefixes like
+  `docs:` or `feat:` (the type prefix is only for branch names). The squash-merge appends the PR
+  number, so do not add one.
 - PR descriptions cover what changed, what was deliberately left alone, and any behaviour change.
 - On conflicts with `main`, merge `origin/main` into the branch; do not rebase and force-push.
 - Update `README.md` when inputs, outputs, config keys, behaviour, or workflows change.
+- Releases are immutable exact version tags (`v0.3.0`, ...). Do not create or move floating tags
+  (`v0`, `latest`) and do not document them as an option. After a release, update the pinned
+  version in `nightly-test-released.yaml`, `lib-get-test-matrix.yaml` and the `README.md` examples.
 
 ## Action rules (`action.yml`)
 
@@ -45,6 +52,10 @@ CI (`ci-action.yaml`, `nightly-test-released.yaml`) using the fixtures in `tests
 - Pin third-party actions in workflows to commit SHAs with a `# ratchet:<owner>/<repo>@<tag>`
   comment, never to tags or branches.
 - Workflows use least-privilege `permissions` and set `timeout-minutes` on jobs.
+- Only depend on files consumers get at runtime. The action reads `configs/versions.json` through
+  `github.action_path`; never make it read `tests/`, fixtures or other repo files that are only
+  for development. Test inputs belong in `tests/fixtures/` and are passed through the `config`
+  input from the consumer workspace.
 
 ## Workflow structure (`.github/workflows/`)
 
