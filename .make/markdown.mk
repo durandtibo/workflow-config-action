@@ -1,6 +1,8 @@
 ifndef MARKDOWN_MK_INCLUDED
 MARKDOWN_MK_INCLUDED := 1
 
+include $(dir $(lastword $(MAKEFILE_LIST)))tool-info.mk
+
 # Targets for formatting and linting Markdown files.
 #
 # Optional variables (set before including this file):
@@ -28,11 +30,12 @@ install-markdownlint:
 		echo "📦 markdownlint not found, installing..."; \
 		npm install -g markdownlint-cli; \
 	fi
+	$(call show-tool,markdownlint)
 
 .PHONY: lint-markdown
 lint-markdown: install-markdownlint ## Lint Markdown files with markdownlint
 	@echo "🔍 Running markdownlint on Markdown files..."
-	markdownlint $(MARKDOWN_LINT_GLOB)
+	markdownlint '$(MARKDOWN_LINT_GLOB)'
 	@echo "✅ Markdownlint passed"
 
 endif
