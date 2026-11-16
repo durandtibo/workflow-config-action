@@ -55,7 +55,7 @@ When using this action:
 
    ```yaml
    # Good
-   uses: durandtibo/workflow-config-action@v0.3.0
+   uses: durandtibo/workflow-config-action@v0.3.1
 
    # Avoid
    uses: durandtibo/workflow-config-action@main
