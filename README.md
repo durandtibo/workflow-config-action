@@ -196,7 +196,7 @@ files themselves. It has its own triggers and is not called from `ci.yaml`, so i
 required check.
 
 Both test workflows run the same suite, each case being a separate job asserting on the exact
-output values:
+output values. `nightly-test-released.yaml` has one extra job, `downloaded-files`.
 
 | Job                     | What it checks                                                       |
 | ----------------------- | -------------------------------------------------------------------- |
@@ -208,6 +208,7 @@ output values:
 | `missing-keys-fallback` | Absent keys default to empty arrays                                  |
 | `missing-config-file`   | A missing config file fails the step                                 |
 | `unknown-key`           | An unknown `key` fails the step                                      |
+| `downloaded-files`      | Only the runtime files of the released action are downloaded         |
 
 `default-config` runs on every OS of the default config (`os_all`, with `fail-fast: false`) to
 confirm the bash and `jq` logic behaves the same across runners. The other jobs run on the
