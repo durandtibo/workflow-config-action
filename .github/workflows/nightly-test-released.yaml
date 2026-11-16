@@ -341,3 +341,40 @@ jobs:
             exit 1
           fi
           echo "✅ The unknown key failed the action"
+
+  downloaded-files:
+    permissions:
+      contents: read
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    strategy:
+      max-parallel: 8
+      fail-fast: false
+      matrix:
+        os: ${{ fromJson(inputs.test-matrix).os_latest }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7
+
+      - name: Setup workflow config
+        uses: durandtibo/workflow-config-action@293a1c5eff18a9c485359d32d3035fdaaddcb955 # ratchet:durandtibo/workflow-config-action@v0.3.0
+
+      - name: Assert that only the runtime files of the released action were downloaded
+        shell: bash
+        run: |
+          set -euo pipefail
+          # The runner downloads actions next to the workspace, in _work/_actions/<owner>/<repo>/<sha>.
+          ACTIONS_DIR="$RUNNER_WORKSPACE/../_actions/durandtibo/workflow-config-action"
+          dirs=("$ACTIONS_DIR"/*/)
+          if [ "${#dirs[@]}" -ne 1 ] || [ ! -d "${dirs[0]}" ]; then
+            echo "::error::Expected exactly one downloaded version in $ACTIONS_DIR, got: ${dirs[*]}"
+            exit 1
+          fi
+          actual="$(cd "${dirs[0]}" && find . -type f | sed 's|^\./||' | LC_ALL=C sort)"
+          expected="$(printf '%s\n' LICENSE action.yml configs/versions.json)"
+          if [ "$actual" != "$expected" ]; then
+            echo "::error::Unexpected files in the released action. Expected:"$'\n'"$expected"$'\n'"Actual:"$'\n'"$actual"
+            exit 1
+          fi
+          echo "✅ Only the runtime files were downloaded"
