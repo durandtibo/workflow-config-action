@@ -1,22 +1,10 @@
 # 🛠️ workflow-config-action
 
-<p align="center">
-    <a href="https://github.com/durandtibo/workflow-config-action/actions/workflows/ci.yaml">
-        <img alt="CI" src="https://github.com/durandtibo/workflow-config-action/actions/workflows/ci.yaml/badge.svg">
-    </a>
-    <a href="https://github.com/durandtibo/workflow-config-action/actions/workflows/nightly.yaml">
-        <img alt="Nightly Tests" src="https://github.com/durandtibo/workflow-config-action/actions/workflows/nightly.yaml/badge.svg">
-    </a>
-    <a href="https://github.com/durandtibo/workflow-config-action/actions/workflows/security-scorecard.yaml">
-        <img alt="Scorecard" src="https://github.com/durandtibo/workflow-config-action/actions/workflows/security-scorecard.yaml/badge.svg">
-    </a>
-    <a href="https://github.com/durandtibo/workflow-config-action/blob/main/LICENSE">
-        <img alt="License" src="https://img.shields.io/github/license/durandtibo/workflow-config-action">
-    </a>
-    <a href="https://github.com/durandtibo/workflow-config-action/releases">
-        <img alt="Release" src="https://img.shields.io/github/v/release/durandtibo/workflow-config-action">
-    </a>
-</p>
+[![CI](https://github.com/durandtibo/workflow-config-action/actions/workflows/ci.yaml/badge.svg)](https://github.com/durandtibo/workflow-config-action/actions/workflows/ci.yaml)
+[![Nightly](https://github.com/durandtibo/workflow-config-action/actions/workflows/nightly.yaml/badge.svg)](https://github.com/durandtibo/workflow-config-action/actions/workflows/nightly.yaml)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/durandtibo/workflow-config-action/badge)](https://scorecard.dev/viewer/?uri=github.com/durandtibo/workflow-config-action)
+[![License](https://img.shields.io/badge/license-BSD--3--Clause-blue)](LICENSE)
+[![Latest release](https://img.shields.io/github/v/tag/durandtibo/workflow-config-action?label=release)](https://github.com/durandtibo/workflow-config-action/tags)
 
 A composite GitHub Action that exposes reusable workflow configuration
 (Python versions, OS matrices, etc.) as job outputs, so multiple workflows
