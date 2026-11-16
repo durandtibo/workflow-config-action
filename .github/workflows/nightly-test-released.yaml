@@ -35,7 +35,7 @@ jobs:
 
       - name: Setup workflow config
         id: cfg
-        uses: durandtibo/workflow-config-action@293a1c5eff18a9c485359d32d3035fdaaddcb955 # ratchet:durandtibo/workflow-config-action@v0.3.0
+        uses: durandtibo/workflow-config-action@9dbe1b206e5367c4c7f9aeb658b7e91d5749a3fa # ratchet:durandtibo/workflow-config-action@v0.3.1
 
       - name: Assert outputs match the config of the released action
         shell: bash
@@ -99,7 +99,7 @@ jobs:
 
       - name: Setup workflow config
         id: cfg
-        uses: durandtibo/workflow-config-action@293a1c5eff18a9c485359d32d3035fdaaddcb955 # ratchet:durandtibo/workflow-config-action@v0.3.0
+        uses: durandtibo/workflow-config-action@9dbe1b206e5367c4c7f9aeb658b7e91d5749a3fa # ratchet:durandtibo/workflow-config-action@v0.3.1
         with:
           config: tests/fixtures/override.json
 
@@ -143,7 +143,7 @@ jobs:
 
       - name: Setup workflow config
         id: cfg
-        uses: durandtibo/workflow-config-action@293a1c5eff18a9c485359d32d3035fdaaddcb955 # ratchet:durandtibo/workflow-config-action@v0.3.0
+        uses: durandtibo/workflow-config-action@9dbe1b206e5367c4c7f9aeb658b7e91d5749a3fa # ratchet:durandtibo/workflow-config-action@v0.3.1
         with:
           config: tests/fixtures/override.json
           key: label
@@ -173,7 +173,7 @@ jobs:
 
       - name: Setup workflow config
         id: cfg
-        uses: durandtibo/workflow-config-action@293a1c5eff18a9c485359d32d3035fdaaddcb955 # ratchet:durandtibo/workflow-config-action@v0.3.0
+        uses: durandtibo/workflow-config-action@9dbe1b206e5367c4c7f9aeb658b7e91d5749a3fa # ratchet:durandtibo/workflow-config-action@v0.3.1
         with:
           config: tests/fixtures/override.json
           key: python_versions_standard
@@ -203,7 +203,7 @@ jobs:
 
       - name: Setup workflow config
         id: cfg
-        uses: durandtibo/workflow-config-action@293a1c5eff18a9c485359d32d3035fdaaddcb955 # ratchet:durandtibo/workflow-config-action@v0.3.0
+        uses: durandtibo/workflow-config-action@9dbe1b206e5367c4c7f9aeb658b7e91d5749a3fa # ratchet:durandtibo/workflow-config-action@v0.3.1
         with:
           config: tests/fixtures/partial.json
 
@@ -247,7 +247,7 @@ jobs:
 
       - name: Setup workflow config
         id: cfg
-        uses: durandtibo/workflow-config-action@293a1c5eff18a9c485359d32d3035fdaaddcb955 # ratchet:durandtibo/workflow-config-action@v0.3.0
+        uses: durandtibo/workflow-config-action@9dbe1b206e5367c4c7f9aeb658b7e91d5749a3fa # ratchet:durandtibo/workflow-config-action@v0.3.1
         with:
           config: tests/fixtures/missing-keys.json
 
@@ -292,7 +292,7 @@ jobs:
 
       - name: Setup workflow config with a missing config file
         id: cfg
-        uses: durandtibo/workflow-config-action@293a1c5eff18a9c485359d32d3035fdaaddcb955 # ratchet:durandtibo/workflow-config-action@v0.3.0
+        uses: durandtibo/workflow-config-action@9dbe1b206e5367c4c7f9aeb658b7e91d5749a3fa # ratchet:durandtibo/workflow-config-action@v0.3.1
         continue-on-error: true
         with:
           config: tests/fixtures/does-not-exist.json
@@ -325,7 +325,7 @@ jobs:
 
       - name: Setup workflow config with an unknown key
         id: cfg
-        uses: durandtibo/workflow-config-action@293a1c5eff18a9c485359d32d3035fdaaddcb955 # ratchet:durandtibo/workflow-config-action@v0.3.0
+        uses: durandtibo/workflow-config-action@9dbe1b206e5367c4c7f9aeb658b7e91d5749a3fa # ratchet:durandtibo/workflow-config-action@v0.3.1
         continue-on-error: true
         with:
           config: tests/fixtures/override.json
@@ -358,7 +358,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7
 
       - name: Setup workflow config
-        uses: durandtibo/workflow-config-action@293a1c5eff18a9c485359d32d3035fdaaddcb955 # ratchet:durandtibo/workflow-config-action@v0.3.0
+        uses: durandtibo/workflow-config-action@9dbe1b206e5367c4c7f9aeb658b7e91d5749a3fa # ratchet:durandtibo/workflow-config-action@v0.3.1
 
       - name: Assert that only the runtime files of the released action were downloaded
         shell: bash
