@@ -52,10 +52,12 @@ CI (`ci-action.yaml`, `nightly-test-released.yaml`) using the fixtures in `tests
 - Pin third-party actions in workflows to commit SHAs with a `# ratchet:<owner>/<repo>@<tag>`
   comment, never to tags or branches.
 - Workflows use least-privilege `permissions` and set `timeout-minutes` on jobs.
-- Only depend on files consumers get at runtime. The action reads `configs/versions.json` through
-  `github.action_path`; never make it read `tests/`, fixtures or other repo files that are only
-  for development. Test inputs belong in `tests/fixtures/` and are passed through the `config`
-  input from the consumer workspace.
+- Only ship what the action needs at runtime: files the action itself uses (`action.yml`,
+  `LICENSE`, `configs/versions.json`) are exported, and `.gitattributes` marks everything else
+  `export-ignore`. When the action starts using a new file, un-ignore it there. Never make the
+  action read tests, fixtures or other repo files that are not exported. Test inputs belong in
+  `tests/fixtures/` and are passed through the `config` input from the consumer workspace. Check
+  the exported set with `git archive --worktree-attributes HEAD | tar t`.
 
 ## Workflow structure (`.github/workflows/`)
 

@@ -1,0 +1,7 @@
+# Only ship what the action needs at runtime. Everything else is excluded from
+# `git archive` exports. When the action starts using a new file, un-ignore it here.
+* export-ignore
+action.yml -export-ignore
+LICENSE -export-ignore
+configs -export-ignore
+configs/versions.json -export-ignore
