@@ -70,7 +70,7 @@ Adding a new key to the default config requires changes in several places:
 2. Add an entry to the `outputs:` block of [`action.yaml`](action.yaml).
 3. Add an `emit_sorted` call in the `load` step of `action.yaml`.
 4. Document it in the tables of this README.
-5. Add or update the tests in `ci-action.yaml` and `nightly-test-released.yaml`.
+5. Add or update the cases in `tests/cases.json` and the checks of `dev/check_action_case.sh`.
 
 ### 🔀 Overriding the config in a consumer repo
 
@@ -171,52 +171,68 @@ full working example.
 
 ## ✅ Testing
 
-The action cannot be run end to end locally, so it is tested by workflows in CI. The test inputs
-are in [`tests/fixtures`](tests/fixtures).
+The logic is inline in [`action.yaml`](action.yaml) (bash and `jq`), so there is no code level
+test: the action is tested by workflows in CI. The test cases are the rows of
+[`tests/cases.json`](tests/cases.json), with inputs in [`tests/fixtures`](tests/fixtures). The
+action is tested on Linux and macOS runners. Windows runners are not tested and not supported.
 
 [`ci.yaml`](.github/workflows/ci.yaml) runs on every pull request, push to `main`, nightly
 (09:10 UTC) and on manual dispatch. It holds no steps, only jobs that call reusable workflows:
 
-- [`lib-get-test-matrix.yaml`](.github/workflows/lib-get-test-matrix.yaml): loads the Python
-  versions and the OS list once from the latest released action, and passes them to the test
-  jobs. It uses the released action so a broken change cannot take the test matrix down.
+- [`lib-get-test-matrix.yaml`](.github/workflows/lib-get-test-matrix.yaml): loads the OS and Python
+  lists once from the latest released action, and passes them to the test jobs. It uses the
+  released action so a broken change cannot take the test matrix down. It exposes `os_matrix`
+  (Linux and macOS), `os_macos`, `os_latest`, `python_versions` and `python_versions_standard`.
 - [`ci-format.yaml`](.github/workflows/ci-format.yaml): lints the Markdown and YAML files with
   the `make lint-*` targets.
+- [`ci-export.yaml`](.github/workflows/ci-export.yaml): checks that the files shipped in a release
+  (`git archive`) are the files the action needs (`make check-export`), and that the cases are
+  well formed (`make check-cases`).
 - [`ci-action.yaml`](.github/workflows/ci-action.yaml): exercises the action from the **current
   repository code** (`uses: ./`), so changes are validated before they are released.
 
 [`nightly.yaml`](.github/workflows/nightly.yaml) runs every night (10:30 UTC) and on manual
-dispatch. It calls
-[`nightly-test-released.yaml`](.github/workflows/nightly-test-released.yaml), which runs the
-**released** action (pinned to a release) with the same tests, to catch regressions in what
-consumers actually pick up. Update the pinned release there when a new version is released.
+dispatch. It calls the same `ci-action.yaml` with `use-released: true`, which runs the
+**released** action (pinned to a release) with the same cases, to catch regressions in what
+consumers actually pick up. Update the pinned release in `ci-action.yaml` when a new version is
+released.
 
 [`ci-verify-workflows.yaml`](.github/workflows/ci-verify-workflows.yaml) lints the workflow
 files themselves. It has its own triggers and is not called from `ci.yaml`, so it can be a
 required check.
 
-Both test workflows run the same suite, each case being a separate job asserting on the exact
-output values. `nightly-test-released.yaml` has one extra job, `downloaded-files`.
+`ci-action.yaml` has two groups of tests. Every check asserts on the exact output values or on
+their format.
 
-| Job                     | What it checks                                                       |
-| ----------------------- | -------------------------------------------------------------------- |
-| `default-config`        | Outputs match the default config, and the derived unions are correct |
-| `config-override`       | The `config` input replaces the defaults, and lists are sorted       |
-| `key-scalar`            | The `key` input returns a scalar value as is                         |
-| `key-array`             | The `key` input returns an array value sorted                        |
-| `partial-keys`          | Derived outputs equal the present side when the other side is absent |
-| `missing-keys-fallback` | Absent keys default to empty arrays                                  |
-| `missing-config-file`   | A missing config file fails the step                                 |
-| `unknown-key`           | An unknown `key` fails the step                                      |
-| `downloaded-files`      | Only the runtime files of the released action are downloaded         |
+| Job                     | Runs on                                    | What it checks                                                                                                    |
+| ----------------------- | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| `test`                  | every Linux and macOS runner (`os_matrix`) | The default config: outputs are sorted JSON arrays, match the `config` output, and the derived unions are correct |
+| `test-cases`            | `ubuntu-latest` and `macos-latest`         | One row of `tests/cases.json` per job (below)                                                                     |
+| `test-downloaded-files` | `ubuntu-latest` and `macos-latest`         | Released action only: only the runtime files were downloaded                                                      |
 
-`default-config` runs on every OS of the default config (`os_all`, with `fail-fast: false`) to
-confirm the bash and `jq` logic behaves the same across runners. The other jobs run on the
-`*-latest` runners only.
+For the local action, `test` also compares the `config` output with `configs/versions.json`. The
+released action bundles its own config, which can differ from the working tree.
 
-`ci-action.yaml` and `nightly-test-released.yaml` receive the test matrix as input, so they only
-run through `ci.yaml` and `nightly.yaml`. The other workflows can also be triggered manually
-(`workflow_dispatch`).
+| Case                        | What it checks                                                       |
+| --------------------------- | -------------------------------------------------------------------- |
+| `config-override`           | The `config` input replaces the defaults, and lists are sorted       |
+| `partial-keys`              | Derived outputs equal the present side when the other side is absent |
+| `missing-keys-fallback`     | Absent keys default to empty arrays                                  |
+| `key-scalar`                | The `key` input returns a scalar value as is                         |
+| `key-array-sorted`          | The `key` input returns an array value sorted                        |
+| `key-not-in-the-known-keys` | The `key` input reads a key that is not one of the known keys        |
+| `key-default-config`        | The `key` input works with the default config                        |
+| `missing-config-file`       | A missing config file fails the step and sets no output              |
+| `unknown-key`               | An unknown `key` fails the step and sets no `value`                  |
+
+A case that expects a failure runs after a successful run of the action on the same runner, so it
+cannot fail for the wrong reason. A new case is a new row in `tests/cases.json` (with
+`"released": false` until the last release supports it), not a new job.
+
+`ci-action.yaml` receives the test matrix as input, so through `ci.yaml` and `nightly.yaml` it
+runs with the matrix they load. It can also be run by hand (`workflow_dispatch`), with the input
+`use-released` to choose the version. The checks that run without GitHub are `make check-export`
+and `make check-cases` (`make test`).
 
 ## 🤖 Automation and security
 

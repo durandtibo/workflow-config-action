@@ -1,0 +1,98 @@
+[
+  {
+    "id": "config-override",
+    "inputs": { "config": "tests/fixtures/override.json" },
+    "expect": "success",
+    "released": true,
+    "expected": {
+      "python_versions_standard": ["3.10", "3.11", "3.12"],
+      "python_versions_threaded": ["3.13t"],
+      "python_versions": ["3.10", "3.11", "3.12", "3.13t"],
+      "os_ubuntu": ["ubuntu-22.04", "ubuntu-latest"],
+      "os_macos": ["macos-14", "macos-latest"],
+      "os_windows": ["windows-2022", "windows-latest"],
+      "os_unix": ["macos-14", "macos-latest", "ubuntu-22.04", "ubuntu-latest"],
+      "os_all": [
+        "macos-14",
+        "macos-latest",
+        "ubuntu-22.04",
+        "ubuntu-latest",
+        "windows-2022",
+        "windows-latest"
+      ]
+    }
+  },
+  {
+    "id": "partial-keys",
+    "inputs": { "config": "tests/fixtures/partial.json" },
+    "expect": "success",
+    "released": true,
+    "expected": {
+      "python_versions_standard": ["3.11", "3.12"],
+      "python_versions_threaded": [],
+      "python_versions": ["3.11", "3.12"],
+      "os_ubuntu": ["ubuntu-22.04", "ubuntu-latest"],
+      "os_macos": ["macos-14", "macos-latest"],
+      "os_windows": [],
+      "os_unix": ["macos-14", "macos-latest", "ubuntu-22.04", "ubuntu-latest"],
+      "os_all": ["macos-14", "macos-latest", "ubuntu-22.04", "ubuntu-latest"]
+    }
+  },
+  {
+    "id": "missing-keys-fallback",
+    "inputs": { "config": "tests/fixtures/missing-keys.json" },
+    "expect": "success",
+    "released": true,
+    "expected": {
+      "python_versions_standard": [],
+      "python_versions_threaded": [],
+      "python_versions": [],
+      "os_ubuntu": [],
+      "os_macos": [],
+      "os_windows": [],
+      "os_unix": [],
+      "os_all": []
+    }
+  },
+  {
+    "id": "key-scalar",
+    "inputs": { "config": "tests/fixtures/override.json", "key": "label" },
+    "expect": "success",
+    "released": true,
+    "expected": { "value": "custom" }
+  },
+  {
+    "id": "key-array-sorted",
+    "inputs": { "config": "tests/fixtures/override.json", "key": "python_versions_standard" },
+    "expect": "success",
+    "released": true,
+    "expected": { "value": ["3.10", "3.11", "3.12"] }
+  },
+  {
+    "id": "key-not-in-the-known-keys",
+    "inputs": { "config": "tests/fixtures/missing-keys.json", "key": "other_key" },
+    "expect": "success",
+    "released": true,
+    "expected": { "value": "value" }
+  },
+  {
+    "id": "key-default-config",
+    "inputs": { "key": "os_windows" },
+    "expect": "success",
+    "released": true
+  },
+  {
+    "id": "missing-config-file",
+    "inputs": { "config": "tests/fixtures/does-not-exist.json" },
+    "expect": "failure",
+    "released": true,
+    "unset": "all"
+  },
+  {
+    "id": "unknown-key",
+    "inputs": { "config": "tests/fixtures/override.json", "key": "does_not_exist" },
+    "expect": "failure",
+    "released": true,
+    "unset": ["value"]
+  }
+]
