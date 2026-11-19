@@ -12,7 +12,7 @@
 # unit test level: these tests are the only tests of the logic, and they assert on the exact
 # value or on the format of every output, never just print them.
 #
-# Two levels of tests:
+# Three groups of tests (general behaviour, edge cases, released files):
 #   - general behaviour (`test`): the default config on every OS of the matrix (Linux and
 #     macOS; Windows is not claimed by the README). The default config of the released action
 #     can differ from the working tree, so the outputs are checked against the `config` output
