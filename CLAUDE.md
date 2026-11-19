@@ -165,6 +165,8 @@ Rules:
   `if: ${{ !inputs.use-released }}` and the pinned release with `if: ${{ inputs.use-released }}`,
   and one verify step reading `steps.local.outputs.x || steps.released.outputs.x`. There is no
   `nightly-test-released.yaml`.
+- Count the jobs per run and keep the count in the `README.md` "Testing" section (currently 31 for
+  `ci.yaml` and 33 for `nightly.yaml`). Update it when a case, a job or the matrix lists change.
 - Put the cases in `tests/cases.json`. A row has `"released": false` until the last release has the
   feature; the released run skips those rows.
 - The default config of the released action can differ from the working tree. Check its outputs

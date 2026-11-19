@@ -226,6 +226,12 @@ released action bundles its own config, which can differ from the working tree.
 | `missing-config-file`       | A missing config file fails the step and sets no output              |
 | `unknown-key`               | An unknown `key` fails the step and sets no `value`                  |
 
+Cost of a run, with the default config (13 runners in `os_matrix`, 2 in `os_latest`, 9 cases):
+`test` has 13 jobs, `test-cases` has 2 x 9 = 18 jobs and `test-downloaded-files` has 2 jobs (released
+action only). So `ci.yaml` runs 31 action jobs and `nightly.yaml` runs 33. The matrix is the same
+on pull requests, pushes and the schedule. Every job has `timeout-minutes`, and every matrix has
+`fail-fast: false` and `max-parallel`.
+
 A case that expects a failure runs after a successful run of the action on the same runner, so it
 cannot fail for the wrong reason. A new case is a new row in `tests/cases.json` (with
 `"released": false` until the last release supports it), not a new job.
