@@ -186,8 +186,9 @@ action is tested on Linux and macOS runners. Windows runners are not tested and 
 - [`ci-format.yaml`](.github/workflows/ci-format.yaml): lints the Markdown and YAML files with
   the `make lint-*` targets.
 - [`ci-export.yaml`](.github/workflows/ci-export.yaml): checks that the files shipped in a release
-  (`git archive`) are the files the action needs (`make check-export`), and that the cases are
-  well formed (`make check-cases`).
+  (`git archive`) are the files the action needs (`make check-export`), that the cases are
+  well formed (`make check-cases`), and that the inputs and outputs of this README match
+  `action.yaml` (`make check-readme`).
 - [`ci-action.yaml`](.github/workflows/ci-action.yaml): exercises the action from the **current
   repository code** (`uses: ./`), so changes are validated before they are released.
 
@@ -231,8 +232,8 @@ cannot fail for the wrong reason. A new case is a new row in `tests/cases.json` 
 
 `ci-action.yaml` receives the test matrix as input, so through `ci.yaml` and `nightly.yaml` it
 runs with the matrix they load. It can also be run by hand (`workflow_dispatch`), with the input
-`use-released` to choose the version. The checks that run without GitHub are `make check-export`
-and `make check-cases` (`make test`).
+`use-released` to choose the version. The checks that run without GitHub are `make check-export`,
+`make check-cases` and `make check-readme` (`make test`).
 
 ## 🤖 Automation and security
 
