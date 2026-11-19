@@ -9,7 +9,7 @@
 #   - nightly.yaml: tests the latest released action (ci-action.yaml with
 #     use-released: true), with its own schedule.
 #
-# Permissions are set at the job level, not the workflow level.
+# The workflow grants nothing (permissions: {}); each job sets its own permissions.
 #
 # The individual check jobs below call out to per-check reusable workflows
 # (ci-format.yaml, ...) instead of inlining their steps here, so each check
