@@ -4,10 +4,10 @@ Guidance for coding agents working in this repository.
 
 ## Repository purpose
 
-A GitHub composite action (`action.yml`) that exposes shared workflow configuration (Python
+A GitHub composite action (`action.yaml`) that exposes shared workflow configuration (Python
 versions, OS runner labels) as job outputs. The default config lives in `configs/versions.json`;
 consumers can override it with the `config` input. The logic is inline in the `load` step of
-`action.yml` (bash and `jq`). There is no separate script. The action is tested by workflows in
+`action.yaml` (bash and `jq`). There is no separate script. The action is tested by workflows in
 CI (`ci-action.yaml`, `nightly-test-released.yaml`) using the fixtures in `tests/fixtures/`.
 
 ## Environment
@@ -37,13 +37,13 @@ CI (`ci-action.yaml`, `nightly-test-released.yaml`) using the fixtures in `tests
   (`v0`, `latest`) and do not document them as an option. After a release, update the pinned
   version in `nightly-test-released.yaml`, `lib-get-test-matrix.yaml` and the `README.md` examples.
 
-## Action rules (`action.yml`)
+## Action rules (`action.yaml`)
 
 - Keep input and output names, defaults, and descriptions consistent with `README.md`. Renaming
   or removing an input or output is a breaking change and must be flagged.
 - Adding a config key means updating `configs/versions.json`, the `outputs:` block, the
   `emit_sorted` calls in the `load` step, `README.md`, and the tests.
-- Derived outputs (`python_versions`, `os_unix`, `os_all`) are computed in `action.yml`, never
+- Derived outputs (`python_versions`, `os_unix`, `os_all`) are computed in `action.yaml`, never
   stored in the config file.
 - List outputs are sorted and default to an empty array when the key is absent.
 - Pass inputs to the script through `env:`, never by interpolating `${{ inputs.* }}` in `run:`.
@@ -52,7 +52,7 @@ CI (`ci-action.yaml`, `nightly-test-released.yaml`) using the fixtures in `tests
 - Pin third-party actions in workflows to commit SHAs with a `# ratchet:<owner>/<repo>@<tag>`
   comment, never to tags or branches.
 - Workflows use least-privilege `permissions` and set `timeout-minutes` on jobs.
-- Only ship what the action needs at runtime: files the action itself uses (`action.yml`,
+- Only ship what the action needs at runtime: files the action itself uses (`action.yaml`,
   `LICENSE`, `configs/versions.json`) are exported, and `.gitattributes` marks everything else
   `export-ignore`. When the action starts using a new file, un-ignore it there. Never make the
   action read tests, fixtures or other repo files that are not exported. Test inputs belong in

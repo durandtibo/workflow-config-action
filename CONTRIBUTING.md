@@ -61,7 +61,7 @@ do not edit it.
 
 ### Repository Layout
 
-- `action.yml`: the composite action. The logic is inline in the `load` step (bash and `jq`)
+- `action.yaml`: the composite action. The logic is inline in the `load` step (bash and `jq`)
 - `configs/versions.json`: the default configuration
 - `tests/fixtures/`: inputs used by the tests
 - `.github/workflows/`: the CI, nightly, bot and security workflows

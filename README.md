@@ -46,7 +46,7 @@ The recognized keys are `python_versions_standard`, `python_versions_threaded`, 
 `os_macos` and `os_windows`. Each one is a JSON array and each one is optional. Any other key is
 kept in the `config` output and can be read with the `key` input.
 
-The derived outputs are not stored in the config file. They are computed in `action.yml`, so the
+The derived outputs are not stored in the config file. They are computed in `action.yaml`, so the
 lists never drift out of sync with their union:
 
 | Derived output    | Computed as                                             |
@@ -67,8 +67,8 @@ available at
 Adding a new key to the default config requires changes in several places:
 
 1. Add the key to [`configs/versions.json`](configs/versions.json).
-2. Add an entry to the `outputs:` block of [`action.yml`](action.yml).
-3. Add an `emit_sorted` call in the `load` step of `action.yml`.
+2. Add an entry to the `outputs:` block of [`action.yaml`](action.yaml).
+3. Add an `emit_sorted` call in the `load` step of `action.yaml`.
 4. Document it in the tables of this README.
 5. Add or update the tests in `ci-action.yaml` and `nightly-test-released.yaml`.
 
