@@ -16,8 +16,8 @@ This repository is also the source of the OS and Python lists that the other act
 of `durandtibo` use in their tests, through `lib-get-test-matrix.yaml`. Keep the keys of that
 matrix stable (see "Testing strategy").
 
-`dev/` holds maintainer helpers (`check_action_case.sh`, `check_cases.sh`, `check_export.sh`), not
-part of the action.
+`dev/` holds maintainer helpers (`check_action_case.sh`, `check_cases.sh`, `check_export.sh`,
+`check_readme.sh`), not part of the action.
 
 ## Environment
 
@@ -25,7 +25,8 @@ part of the action.
 - Do not edit `.make/`: it is a shared directory synced by `bot-sync-shared-makefile.yaml`.
 - Run `make format` and `make lint` before committing. Fix what they report instead of disabling
   rules.
-- Run `make test` (`make check-export` and `make check-cases`) for the checks that run on a laptop.
+- Run `make test` (`make check-export`, `make check-cases` and `make check-readme`) for the checks
+  that run on a laptop.
 - The action cannot be run end to end locally. Check `jq` filters by hand against the files in
   `configs/` and `tests/fixtures/`, and say in the PR which workflows could not be run locally
   instead of claiming they pass.
@@ -91,8 +92,9 @@ Files are prefixed by role:
   - `lib-get-test-matrix.yaml`: loads the OS and Python lists from the latest released action
     once, and passes them to the jobs that need them.
   - `ci-format.yaml`: runs the `make lint-*` targets.
-  - `ci-export.yaml`: checks the exported set (`make check-export`, `dev/check_export.sh`) and
-    the shape of the cases (`make check-cases`, `dev/check_cases.sh`).
+  - `ci-export.yaml`: checks the exported set (`make check-export`, `dev/check_export.sh`), the
+    shape of the cases (`make check-cases`, `dev/check_cases.sh`) and the README inputs and
+    outputs against `action.yaml` (`make check-readme`, `dev/check_readme.sh`).
   - `ci-action.yaml`: runs the action from this checkout (`uses: ./`), i.e. the version not
     released yet, against the default config, overrides, the `key` input, and error paths. With
     the input `use-released: true` it runs the latest released action instead.
@@ -137,7 +139,7 @@ Three levels:
 
 1. **Code**: each script or function, tested alone with mocks. This action has no code outside
    `action.yaml`, so this level is empty. The `make` checks of `dev/` (`check-export`,
-   `check-cases`) are the only checks that run without GitHub.
+   `check-cases`, `check-readme`) are the only checks that run without GitHub.
 2. **Local action**: the action from this checkout (`uses: ./`) in a real workflow.
 3. **Released action**: the latest stable release (`uses: durandtibo/workflow-config-action@<sha>`),
    run nightly with the same cases as level 2. Never run it on pull requests.
@@ -181,7 +183,9 @@ Rules:
   run has `test-downloaded-files`, which checks the files the runner downloaded.
 - Set `timeout-minutes` and `fail-fast: false` on matrix jobs. Put assertions shared by the local
   and released runs in one script (`dev/check_action_case.sh`), not in two workflows.
-- Keep the README inputs and outputs in step with `action.yaml`.
+- Keep the README inputs and outputs in step with `action.yaml`: `make check-readme`
+  (`dev/check_readme.sh`) compares the names of the tables with the `inputs:` and `outputs:` blocks
+  and the empty defaults, and runs in `ci-export.yaml`.
 
 ## Reporting
 

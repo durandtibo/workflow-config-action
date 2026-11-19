@@ -1,6 +1,8 @@
 # Check that the files exported by `git archive` (what the consumers of a release get) are
 # exactly the files the action needs at runtime. `uses: ./` in ci-action.yaml runs the whole
 # checkout and hides a file that .gitattributes marks export-ignore by mistake.
+# It also runs the other checks that need no GitHub: the shape of tests/cases.json and the
+# match between the README inputs and outputs and action.yaml.
 
 name: Check Export
 on:
@@ -27,3 +29,7 @@ jobs:
       - name: Check the test cases
         run: |
           make check-cases
+
+      - name: Check the README inputs and outputs
+        run: |
+          make check-readme
