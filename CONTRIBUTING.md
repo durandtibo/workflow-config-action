@@ -63,19 +63,23 @@ do not edit it.
 
 - `action.yaml`: the composite action. The logic is inline in the `load` step (bash and `jq`)
 - `configs/versions.json`: the default configuration
-- `tests/fixtures/`: inputs used by the tests
+- `tests/cases.json` and `tests/fixtures/`: the test cases and their inputs
+- `dev/`: maintainer helpers used by the tests and the CI (not shipped)
 - `.github/workflows/`: the CI, nightly, bot and security workflows
 
 ### Tests
 
 The action is tested by GitHub workflows, not by local tests:
 
-- Test cases are jobs in `.github/workflows/ci-action.yaml`, which runs the action from the
-  checkout, and are mirrored in `nightly-test-released.yaml`, which runs the latest release
-- One behavior per step, and assert on the exact output value
+- Test cases are the rows of `tests/cases.json` (inputs in `tests/fixtures/`), run by
+  `.github/workflows/ci-action.yaml` on the checkout and, with `use-released: true`, on the latest
+  release by `nightly.yaml`. A new case is a new row, not a new job
+- `dev/check_action_case.sh` asserts one case, so the local and the released runs check the same
+  thing. Assert on the exact output value
 - Cover success, failure, and edge cases (missing keys, partial configs, unsorted lists, unknown
   key, missing file)
 - Every bug fix needs a regression test that fails without the fix
+- Run `make test` for the checks that run locally (`make check-export` and `make check-cases`)
 
 ## Code Style
 
