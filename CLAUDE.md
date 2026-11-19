@@ -91,7 +91,8 @@ Files are prefixed by role:
   It holds no steps, only jobs that call the reusable `ci-*.yaml` workflows below.
   - `lib-get-test-matrix.yaml`: loads the OS and Python lists from the latest released action
     once, and passes them to the jobs that need them.
-  - `ci-format.yaml`: runs the `make lint-*` targets.
+  - `ci-format.yaml`: runs `make format` and fails on a diff, then `make lint` (Markdown, shell,
+    YAML, Makefile and workflow files).
   - `ci-export.yaml`: checks the exported set (`make check-export`, `dev/check_export.sh`), the
     shape of the cases (`make check-cases`, `dev/check_cases.sh`) and the README inputs and
     outputs against `action.yaml` (`make check-readme`, `dev/check_readme.sh`).
