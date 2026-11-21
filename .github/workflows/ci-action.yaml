@@ -102,7 +102,7 @@ jobs:
       - name: Setup workflow config (released)
         id: released
         if: ${{ inputs.use-released }}
-        uses: durandtibo/workflow-config-action@9dbe1b206e5367c4c7f9aeb658b7e91d5749a3fa # ratchet:durandtibo/workflow-config-action@v0.3.1
+        uses: durandtibo/workflow-config-action@3e5a5b2abb4c044c09e25060a17a50444cb554c3 # ratchet:durandtibo/workflow-config-action@v0.3.2
 
       - name: Check the outputs
         shell: bash
@@ -148,7 +148,7 @@ jobs:
         uses: ./
       - name: Positive run before a failure case (released)
         if: ${{ inputs.use-released && matrix.case.released && matrix.case.expect == 'failure' }}
-        uses: durandtibo/workflow-config-action@9dbe1b206e5367c4c7f9aeb658b7e91d5749a3fa # ratchet:durandtibo/workflow-config-action@v0.3.1
+        uses: durandtibo/workflow-config-action@3e5a5b2abb4c044c09e25060a17a50444cb554c3 # ratchet:durandtibo/workflow-config-action@v0.3.2
 
       # The case. A failure is expected for some rows: its error annotation is expected
       - name: Run the case (local)
@@ -163,7 +163,7 @@ jobs:
         id: released
         if: ${{ inputs.use-released && matrix.case.released }}
         continue-on-error: true
-        uses: durandtibo/workflow-config-action@9dbe1b206e5367c4c7f9aeb658b7e91d5749a3fa # ratchet:durandtibo/workflow-config-action@v0.3.1
+        uses: durandtibo/workflow-config-action@3e5a5b2abb4c044c09e25060a17a50444cb554c3 # ratchet:durandtibo/workflow-config-action@v0.3.2
         with:
           config: ${{ matrix.case.inputs.config || '' }}
           key: ${{ matrix.case.inputs.key || '' }}
@@ -207,7 +207,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7
 
       - name: Setup workflow config (released)
-        uses: durandtibo/workflow-config-action@9dbe1b206e5367c4c7f9aeb658b7e91d5749a3fa # ratchet:durandtibo/workflow-config-action@v0.3.1
+        uses: durandtibo/workflow-config-action@3e5a5b2abb4c044c09e25060a17a50444cb554c3 # ratchet:durandtibo/workflow-config-action@v0.3.2
 
       - name: Assert that only the runtime files of the released action were downloaded
         shell: bash

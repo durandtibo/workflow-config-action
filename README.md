@@ -81,7 +81,7 @@ config file and passing its path via the `config` input:
 steps:
   - uses: actions/checkout@v7
   - id: cfg
-    uses: durandtibo/workflow-config-action@v0.3.1
+    uses: durandtibo/workflow-config-action@v0.3.2
     with:
       config: .github/workflow-config.json
 ```
@@ -140,7 +140,7 @@ jobs:
       os_ubuntu: ${{ steps.cfg.outputs.os_ubuntu }}
     steps:
       - id: cfg
-        uses: durandtibo/workflow-config-action@v0.3.1
+        uses: durandtibo/workflow-config-action@v0.3.2
 
   test:
     needs: config
@@ -160,7 +160,7 @@ Reading a single key with the `key` input:
 ```yaml
 steps:
   - id: cfg
-    uses: durandtibo/workflow-config-action@v0.3.1
+    uses: durandtibo/workflow-config-action@v0.3.2
     with:
       key: os_windows
   - run: echo '${{ steps.cfg.outputs.value }}'
